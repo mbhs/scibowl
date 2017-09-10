@@ -41,7 +41,7 @@ mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/scibowl', { useMongoClient: true });
 
 // Direct API requests to server router
-const routes = require('./server/routes.js');
+const routes = require('./server/routes');
 app.use('/api', routes);
 
 // Route all other requests to the Angular frontend
