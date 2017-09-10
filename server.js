@@ -1,8 +1,8 @@
 const express = require('express');
-// const passport = require('passport');
-// const passportLocal = require('passport-local');
 const bodyParser = require('body-parser');
-// const cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
+const passport = require('passport');
+const passportLocal = require('passport-local');
 // const expressSession = require('express-session');
 const methodOverride = require('method-override');
 const console = require('console');
@@ -13,17 +13,23 @@ const port = process.env.PORT || 8000;
 
 // Application configuration
 const app = express();
-console.log('Created webserver...');
+console.log('Created web server...');
 
 // Content type
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Session stuff
-// app.use(cookieParser());
-// app.use(expressSession({ secret: 'secret!', resave: false, saveUninitialized: false }));
-// app.use(passport.initialize());
-// app.use(passport.session());
+app.use(cookieParser());
+app.use(expressSession({ secret: 'secret!', resave: false, saveUninitialized: false }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Authentication
+const auth = require('./server/accounts');
+passport.use(new passportLocal.Strategy(auth.Account.authenticate()));
+passport.serializeUser(auth.Account.serializeUser());
+passport.deserializeUser(auth.Account.deserializeUser());
 
 // Miscellaneous details
 app.use(express.static(__dirname + '/dist'));
