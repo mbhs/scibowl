@@ -8,6 +8,9 @@ const methodOverride = require('method-override');
 const console = require('console');
 const mongoose = require('mongoose');
 
+const models = require("./server/models");
+
+
 // Web server configuration
 const port = process.env.PORT || 8000;
 
@@ -28,10 +31,9 @@ app.use(passport.session());
 console.log("Initialized authentication...");
 
 // Authentication
-const auth = require('./server/auth');
-passport.use(new passportLocal.Strategy(auth.Account.authenticate()));
-passport.serializeUser(auth.Account.serializeUser());
-passport.deserializeUser(auth.Account.deserializeUser());
+passport.use(new passportLocal.Strategy(models.User.authenticate()));
+passport.serializeUser(models.User.serializeUser());
+passport.deserializeUser(models.User.deserializeUser());
 console.log("Loaded user models...");
 
 // Miscellaneous details
