@@ -5,14 +5,21 @@ const router = express.Router();
 const models = require('../models');
 
 router.post('/new', (req, res) => {
-  // let question = new models.Question({
-  //   name: req.body['name'],
-  //   type: 0
-  // });
+  let question;
 
-  // task.save(err => {
-  //   if (err) throw err;
-  // });
+  if (req.body['kind'] === 'MultipleChoice') {
+    question = new models.MultipleChoiceQuestion({
+      choices: req.body['choices']
+    });
+  } else if (req.body['kind'] === 'ShortAnswer') {
+    question = new models.ShortAnswerQuestion();
+  } else res.status(500).send("'kind' must be one of 'ShortAnswer' or 'MultipleChoice'");
+
+  question.text = req.body['text'];
+  question.subject = req.body['subject'];
+  question.answer = req.body['answer'];
+
+  question.save(err => { if (err) throw err });
 
   res.send({ });
 });
