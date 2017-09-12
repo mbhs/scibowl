@@ -5,4 +5,6 @@ import { Component, Input } from '@angular/core';
   templateUrl: './question.list.component.html'
 })
 export class QuestionListComponent {
+  @Input()
+  questions: any[];
 }
