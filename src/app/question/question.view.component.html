@@ -1,0 +1,90 @@
+<div class="clearfix">
+  <h1 class="float-sm-left">Question</h1>
+  <button type="button" class="btn btn-success float-sm-right" *ngIf="!editing" (click)="editing = true;">Edit <i class="fa fa-pencil"></i></button>
+</div>
+<br/>
+
+<form [formGroup]="questionForm" (ngSubmit)="submit()">
+  <div class="form-group row">
+    <label class="col-sm-2" for="problem-text"><strong>Text</strong></label>
+    <div class="col-sm-10" *ngIf="editing">
+      <textarea class="form-control" id="problem-text"
+                placeholder="What organelle functions to isolate a human cell's chromosomes from the cytoplasm?"
+                formControlName="text" rows="3"></textarea>
+    </div>
+    <div class="col-sm-10" *ngIf="!editing">
+      <p>{{ questionForm.controls['text'].value }}</p>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label class="col-sm-2"><strong>Subject</strong></label>
+    <div class="col-sm-10" *ngIf="editing">
+      <ng-container *ngFor="let subject of SUBJECTS;">
+        <input type="radio" class="subject-button" [id]="'question-subject-' + subject" formControlName="subject" [value]="subject">
+        <label [ngClass]="['subject-' + subject]" [for]="'question-subject-' + subject"></label>
+      </ng-container>
+    </div>
+    <div class="col-sm-10" *ngIf="!editing">
+      <label [ngClass]="['subject-' + questionForm.controls['subject'].value]"></label>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label class="col-sm-2"><strong>Type</strong></label>
+    <div class="col-sm-10" *ngIf="editing">
+      <label class="custom-control custom-radio">
+        <input type="radio" class="custom-control-input" formControlName="type" value="MultipleChoice">
+        <span class="custom-control-indicator"></span>
+        <span class="custom-control-description">Multiple Choice</span>
+      </label>
+      <label class="custom-control custom-radio">
+        <input type="radio" class="custom-control-input" formControlName="type" value="ShortAnswer">
+        <span class="custom-control-indicator"></span>
+        <span class="custom-control-description">Short Answer</span>
+      </label>
+    </div>
+    <div class="col-sm-10" *ngIf="!editing">
+      {{ TYPE_DISPLAY[questionForm.controls['type'].value]}}
+    </div>
+  </div>
+
+  <ng-container *ngIf="questionForm.controls['type'].value === 'MultipleChoice'">
+    <div class="form-group row" *ngFor="let choice of CHOICES;">
+      <label class="col-sm-2" [for]="'problem-answer-choice-' + choice"><strong>Choice {{ choice }}</strong></label>
+      <div class="col-sm-10" *ngIf="editing">
+        <input class="form-control" [id]="'problem-answer-choice-' + choice"
+               [formControlName]="'choice' + choice" [placeholder]="DEFAULT_CHOICES[choice]">
+      </div>
+      <div class="col-sm-10" *ngIf="!editing">
+        {{ questionForm.controls['choice' + choice].value }}
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-2"><strong>Answer</strong></label>
+      <div class="col-sm-10" *ngIf="editing">
+        <label class="custom-control custom-radio" *ngFor="let choice of CHOICES;">
+          <input type="radio" class="custom-control-input" formControlName="choiceAnswer" [value]="choice">
+          <span class="custom-control-indicator"></span>
+          <span class="custom-control-description">{{ choice }}</span>
+        </label>
+      </div>
+      <div class="col-sm-10" *ngIf="!editing">
+        {{ questionForm.controls['choiceAnswer'].value }}) {{ questionForm.controls['choice' + questionForm.controls['choiceAnswer'].value].value }}
+      </div>
+    </div>
+  </ng-container>
+
+  <div class="form-group row" *ngIf="questionForm.controls['type'].value === 'ShortAnswer'">
+    <label class="col-sm-2" for="problem-answer"><strong>Answer</strong></label>
+    <div class="col-sm-10" *ngIf="editing">
+      <input class="form-control" id="problem-answer" formControlName="shortAnswer" placeholder="Nucleus">
+    </div>
+    <div class="col-sm-10" *ngIf="!editing">
+      {{ questionForm.controls['shortAnswer'].value }}
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary" *ngIf="editing">Save</button>
+</form>

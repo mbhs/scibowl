@@ -1,0 +1,44 @@
+$subjects: "physics", "ess", "bio", "chem", "math", "energy";
+$subject-colors: (physics: red, ess: darkblue, bio: green, chem: purple, math: orange, energy: gold);
+$subject-icons: (physics: "\f085", ess: "\f0ac", bio: "\f21e", chem: "\f0c3", math: "\f1ec", energy: "\f0e7");
+
+input[type=radio].subject-button,
+input[type=checkbox].subject-button {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  position: absolute;
+  padding: 0;
+  width: 0;
+}
+
+@each $subject in $subjects {
+  .subject-#{$subject}:before {
+    display: inline-block;
+
+    background-color: map-get($subject-colors, $subject);
+    text-align: center;
+
+    font-family: FontAwesome;
+    content: map-get($subject-icons, $subject);
+
+    width: 2.5rem;
+    line-height: 2.5rem;
+    border-radius: 1.25rem;
+    font-size: 1.5rem;
+
+    color: white;
+  }
+
+  input[type=radio].subject-button:not(:checked) + label.subject-#{$subject}:before,
+  input[type=checkbox].subject-button:not(:checked) + label.subject-#{$subject}:before {
+    background-color: mix(grey, map-get($subject-colors, $subject), 90%);
+  }
+
+  input[type=radio].subject-button + label.subject-#{$subject}:hover:before,
+  input[type=checkbox].subject-button + label.subject-#{$subject}:hover:before {
+    cursor: pointer;
+  }
+}

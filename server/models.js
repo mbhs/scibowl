@@ -71,6 +71,5 @@ module.exports = {
   Question: Question,
   MultipleChoiceQuestion: MultipleChoiceQuestion,
   ShortAnswerQuestion: ShortAnswerQuestion,
-  Round: Round,
-  View: View
+  Round: Round
 };

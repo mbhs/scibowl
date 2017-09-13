@@ -51,7 +51,7 @@ const routes = require('./server/routes');
 app.use('/api', routes);
 
 // Route all other requests to the Angular frontend
-app.get('*', (req, res) => res.sendFile('./dist/index.html'));
+app.get('*', (req, res) => res.sendFile(__dirname + '/dist/index.html'));
 console.log("Bound routes...");
 
 // Start the server

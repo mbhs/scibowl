@@ -1,4 +1,4 @@
 module.exports = {
   MC_CHOICES: ["W", "X", "Y", "Z"],
-  SUBJECTS: ["Mathematics", "Earth and Space Science", "Chemistry", "Physics", "Biology", "Energy"]
+  SUBJECTS: ["math", "ess", "chem", "physics", "bio", "energy"]
 };
