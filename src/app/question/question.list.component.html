@@ -2,7 +2,12 @@
   <thead>
     <tr>
       <th>Text</th>
-      <th></th>
     </tr>
   </thead>
+
+  <tbody>
+    <tr *ngFor="let question of questions;">
+      <td>{{ question.text }}</td>
+    </tr>
+  </tbody>
 </table>

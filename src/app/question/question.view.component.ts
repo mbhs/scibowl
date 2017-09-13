@@ -7,7 +7,7 @@ import 'rxjs/add/operator/map';
 import { CHOICES, SUBJECTS, SUBJECT_DISPLAY, TYPE_DISPLAY } from '../game';
 
 @Component({
-  selector: 'question-view',
+  selector: 'sb-question-view',
   templateUrl: './question.view.component.html'
 })
 export class QuestionViewComponent implements OnInit {

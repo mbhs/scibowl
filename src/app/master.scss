@@ -32,12 +32,13 @@ input[type=checkbox].subject-button {
     color: white;
   }
 
-  .subject-#{$subject}:hover:before {
-    cursor: pointer;
-  }
-
   input[type=radio].subject-button:not(:checked) + label.subject-#{$subject}:before,
   input[type=checkbox].subject-button:not(:checked) + label.subject-#{$subject}:before {
     background-color: mix(grey, map-get($subject-colors, $subject), 90%);
+  }
+
+  input[type=radio].subject-button + label.subject-#{$subject}:hover:before,
+  input[type=checkbox].subject-button + label.subject-#{$subject}:hover:before {
+    cursor: pointer;
   }
 }

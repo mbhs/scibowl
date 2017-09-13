@@ -5,18 +5,21 @@ import { RouterModule, Routes } from '@angular/router';
 import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
-import { QuestionViewComponent } from './question/question.view.component';
 import { QuestionListComponent } from './question/question.list.component';
+import { QuestionSearchComponent } from './question/question.search.component';
+import { QuestionViewComponent } from './question/question.view.component';
 
 const appRoutes: Routes = [
+  { path: 'question/search', component: QuestionSearchComponent },
   { path: 'question/:id', component: QuestionViewComponent }
 ];
 
 @NgModule({
   declarations: [
     AppComponent,
-    QuestionViewComponent,
-    QuestionListComponent
+    QuestionListComponent,
+    QuestionSearchComponent,
+    QuestionViewComponent
   ],
   imports: [
     BrowserModule,

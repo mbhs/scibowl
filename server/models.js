@@ -13,7 +13,6 @@ const questionSchema = new Schema({
   author: { type: Schema.Types.ObjectId, ref: 'User' },
   text: { type: Schema.Types.String, required: true },
   subject: { type: Schema.Types.String, enum: game.SUBJECTS, required: true },
-  bonus: { type: Schema.Types.ObjectId, ref: 'Question' },
   difficulty: Schema.Types.Number
 }, { discriminatorKey: 'type' });
 const Question = mongoose.model('Question', questionSchema);
