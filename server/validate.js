@@ -8,5 +8,3 @@ function username(username) {
   if (!validator.isAlphanumeric(username)) throw "Username must be alphanumeric";
   return username;
 }
-
-
