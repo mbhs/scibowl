@@ -31,7 +31,7 @@ app.use(passport.session());
 console.log("Initialized authentication...");
 
 // Authentication
-passport.use(new passportLocal.Strategy(models.User.authenticate()));
+passport.use(models.User.createStrategy());
 passport.serializeUser(models.User.serializeUser());
 passport.deserializeUser(models.User.deserializeUser());
 console.log("Loaded user models...");

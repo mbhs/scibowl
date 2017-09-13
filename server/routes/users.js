@@ -22,13 +22,13 @@ router.post('/register', (req, res) => {
   } catch (err) {
     if (err instanceof validate.Error) {
       res.status(400).send({reason: err});
+      return;
     } else throw err;
   }
 
   /* Search for existing users. */
   models.User.findOne({ username: username }).exec((err, existing) => {
-    if (err) {
-      console.error(err);
+    if (err) { console.error(err);
       res.status(500).send({reason: 'Server failed to query database'});
       return;
     }
@@ -42,22 +42,20 @@ router.post('/register', (req, res) => {
     /* Create user. */
     let user = new models.User({
       username: username,
+      password: password,
       name: { first: firstName, last: lastName },
       email: email,
     });
 
     /* Register the user and set password. */
     models.User.register(user, password, (err, user) => {
-      if (err) {
-        console.error(err);
+      if (err) { console.error(err);
         res.status(500).send({reason: 'Server failed to register the account'});
         return;
       }
 
       /* Authenticate. */
-      passport.authenticate('local')(req, res, () => {
-        res.status(200).send({});
-      });
+      passport.authenticate('local')(req, res, () => res.status(200).send({}));
 
     });
 
@@ -67,6 +65,56 @@ router.post('/register', (req, res) => {
 
 router.post('/login', (req, res) => {
 
+  /* Parse posted data. */
+  let username, password;
+  try {
+    validate.username(req.body['username'], 'username');
+    validate.password(req.body['password'], 'password');
+  } catch (err) {
+    if (err instanceof validate.ValidationError) {
+      res.status(400).send({ reason: err.reason });
+      return;
+    } else throw err;
+  }
+
+  /* Try to log in. */
+  passport.authenticate('local', (err, user, info) => {
+    if (err) { console.error(err);
+      res.status(500).send({ reason: 'server failed to query database' });
+      return;
+    }
+
+    /* Check username. */
+    if (!user) {
+      res.status(401).send({ reason: 'incorrect username or password' });
+      return;
+    }
+
+    /* Try login. */
+    req.logIn(user, function (err) {
+      if (err) { console.error(err);
+        res.status(500).send({ reason: 'server failed to log in user' });
+        return;
+      }
+      res.status(200).send({});
+    });
+
+  })(req, res);
+
+});
+
+router.get('/authenticated', (req, res) => {
+  if (req.user) res.status(200).send({});
+  else res.status(401).send({});
+});
+
+router.post('/logout', (req, res) => {
+  if (req.user) {
+    req.logout();
+    res.status(200).send({});
+    return;
+  }
+  res.status(400).send({})
 });
 
 module.exports = router;
