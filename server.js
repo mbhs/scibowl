@@ -54,6 +54,10 @@ app.use('/api', routes);
 app.get('*', (req, res) => res.sendFile(__dirname + '/dist/index.html'));
 console.log("Bound routes...");
 
+// Test database.
+// const tests = require("./server/tests");
+// tests.run();
+
 // Start the server
 console.log('Starting server on port ' + port);
 app.listen(port);
