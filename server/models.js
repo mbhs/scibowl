@@ -112,12 +112,19 @@ const viewSchema = new Schema({
 const View = mongoose.model('View', viewSchema);
 
 
+// Tryout round
 const tryoutSchema = new Schema({
-  questions     : { type: [{
-    question    : { type: Schema.Types.ObjectId, ref: 'MultipleChoiceQuestion', required: true },
-    time        : { type: Schema.Types.Number }, }] }
+  questions     : { type: [{ question   : { type: Schema.Types.ObjectId, ref: 'Question', required: true },
+                             time       : { type: Schema.Types.Number, required: true }, }] }
 });
 const TryoutRound = Round.discriminator('TryoutRound', tryoutSchema);
+
+
+// Tryout round result
+const tryoutResultSchema = new Schema({
+  
+});
+const TryoutResult = mongoose.model('View', viewSchema);
 
 
 module.exports = {

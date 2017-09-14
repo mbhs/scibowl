@@ -12,7 +12,7 @@ router.post('/new', (req, res) => {
     res.status(401).send({});
     return;
   }
-  
+
   // Create a question with arbitrary type
   let question;
   if (req.body['type'] === game.MC) {
@@ -35,6 +35,7 @@ router.post('/:id/edit', (req, res) => {
     res.status(401).send({});
     return;
   }
+
   // Find and update the question
   models.Question.findById(req.params.id, (err, question) => {
     question.update(req.body);

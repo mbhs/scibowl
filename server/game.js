@@ -11,6 +11,8 @@ module.exports = {
   MC: "mc",
   SA: "sa",
 
-  SUBJECTS: ["math", "ess", "chemistry", "physics", "biology", "energy"]
+  SUBJECTS: ["math", "ess", "chemistry", "physics", "biology", "energy"],
+
+  STATUS: ["correct", "incorrect", "skipped", "current"],
 
 };
