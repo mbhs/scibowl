@@ -121,10 +121,16 @@ const TryoutRound = Round.discriminator('TryoutRound', tryoutSchema);
 
 
 // Tryout round result
-const tryoutResultSchema = new Schema({
-  
+const tryoutQuestionStatus = ['correct', 'incorrect', 'skipped', 'current'];
+const tryoutResultsSchema = new Schema({
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  questions: [{
+    question: { type: Schema.Types.ObjectId, ref: 'MultipleChoiceQuestion', required: true },
+    time: { type: Schema.Types.Data, required: true },
+    status: { type: Schema.Types.String, enum: tryoutQuestionStatus }
+  }]
 });
-const TryoutResult = mongoose.model('View', viewSchema);
+const TryoutResults = mongoose.model('TryoutResults', tryoutResultsSchema);
 
 
 module.exports = {
@@ -134,5 +140,6 @@ module.exports = {
   MultipleChoiceQuestion: MultipleChoiceQuestion,
   ShortAnswerQuestion: ShortAnswerQuestion,
   Round: Round,
-  TryoutRound: TryoutRound
+  TryoutRound: TryoutRound,
+  TryoutResults: TryoutResults
 };
