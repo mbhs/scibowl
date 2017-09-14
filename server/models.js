@@ -7,7 +7,10 @@ const Types = Schema.Types;
 const permissions = require('./permissions');
 const game = require('./game');
 
-const permissionNames = Object.values(permissions);
+let permissionNames = [];
+for (let name of Object.keys(permissions))
+  if (permissions.hasOwnProperty(name))
+    permissionNames.push(permissions[name]);
 
 
 /* A simple permissions container.
@@ -53,7 +56,7 @@ const userSchema = new Schema({
     last        : { type: Types.String, required: true }, },
   email         : { type: Types.String, required: true },
   staff         : { type: Types.Boolean, default: false },
-  permissions   : { type: 'Permissions', default: () => new Permissions() },
+  permissions   : { type: Types.ObjectId, ref: 'Permissions', default: () => new Permissions() },
 });
 
 // Connect to the passport
@@ -129,6 +132,7 @@ const TryoutRound = Round.discriminator('TryoutRound', tryoutSchema);
 
 
 module.exports = {
+  Permissions: Permissions,
   User: User,
   Question: Question,
   MultipleChoiceQuestion: MultipleChoiceQuestion,
