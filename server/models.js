@@ -22,7 +22,7 @@ const userSchema = new Schema({
     first   : { type: Types.String, required: true },
     last    : { type: Types.String, required: true }, },
   email     : { type: Types.String, required: true },
-  role      : { type: Types.Number, default: 1 },
+  role      : { type: Types.Number, default: 1 },  // TODO: validate
 });
 
 /** Connect to the passport. */

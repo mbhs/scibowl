@@ -8,8 +8,11 @@ const game = require('../game');
 
 router.post('/new', (req, res) => {
 
-  if (!req.user || req.user.role < models.roles.staff) return;
-
+  if (!req.user || req.user.role < models.roles.staff) {
+    res.status(401).send({});
+    return;
+  }
+  
   // Create a question with arbitrary type
   let question;
   if (req.body['type'] === game.MC) {
@@ -28,8 +31,10 @@ router.post('/new', (req, res) => {
 
 router.post('/:id/edit', (req, res) => {
 
-  if (!req.user || req.user.role < models.roles.staff) return;
-
+  if (!req.user || req.user.role < models.roles.staff) {
+    res.status(401).send({});
+    return;
+  }
   // Find and update the question
   models.Question.findById(req.params.id, (err, question) => {
     question.update(req.body);
@@ -42,7 +47,10 @@ router.post('/:id/edit', (req, res) => {
 
 router.get('/:id', (req, res) => {
 
-  if (!req.user || req.user.role < models.roles.staff) return;
+  if (!req.user || req.user.role < models.roles.staff) {
+    res.status(401).send({});
+    return;
+  }
 
   // Find and send the question
   models.Question.findById(req.params.id, (err, question) => {
