@@ -4,7 +4,8 @@ const router = express.Router();
 
 const models = require('../models');
 
-function update_question(question, data) {
+
+function updateQuestion(question, data) {
   if (data['type'] === 'MultipleChoice') {
     data.choices = data;
   }
@@ -23,7 +24,7 @@ router.post('/new', (req, res) => {
     question = new models.ShortAnswerQuestion();
   } else res.status(500).send("'type' must be one of 'ShortAnswer' or 'MultipleChoice'");
 
-  update_question(question, req.body);
+  updateQuestion(question, req.body);
   question.save(err => { if (err) throw err });
 
   res.send({ id: question._id });
@@ -31,7 +32,7 @@ router.post('/new', (req, res) => {
 
 router.post('/:id/edit', (req, res) => {
   models.Question.findById(req.params.id, (err, question) => {
-    update_question(question, req.body);
+    updateQuestion(question, req.body);
     question.save(err => { if (err) throw err });
 
     res.send({ });

@@ -4,20 +4,61 @@ const passportLocalMongoose = require("passport-local-mongoose");
 const Schema = mongoose.Schema;
 const Types = Schema.Types;
 
+const permissions = require('./permissions');
 const game = require('./game');
 
+const permissionNames = Object.values(permissions);
 
-// Users
-const userSchema = new Schema({
-  username    : { type: Types.String, required: true },
-  password    : { type: Types.String, required: true },
-  name        : {
-    first     : { type: Types.String, required: true },
-    last      : { type: Types.String, required: true }, },
-  email       : { type: Types.String, required: true },
-  permission  : { type: Types.Number, enum: game.PERMISSIONS, required: true, default: 1 },
+
+/* A simple permissions container.
+ *
+ * Provides several useful methods for adding, checking, and removing
+ * permissions from users. A new permissions object is created when
+ * a user is instantiated.
+ */
+const permissionsSchema = new Schema({
+  names   : { type: [Types.String], validate: array => array.every(s => permissionNames.indexOf(s) > -1) }
 });
+
+// Check if a permissions object has a permission by name
+permissionsSchema.methods.has = function(...names) {
+  for (let name of names) { if (this.names.indexOf(name) === -1) return false }
+  return true;
+};
+
+// Add a permission
+permissionsSchema.methods.add = function(name) {
+  if (!this.has(name)) this.names.push(name);
+};
+
+// Remove a permission
+permissionsSchema.methods.remove = function(name) {
+  if (this.has(name)) this.names.pop(this.names.indexOf(name));
+};
+
+const Permissions = mongoose.model('Permissions', permissionsSchema);
+
+
+/* Defines a user class for use throughout the site.
+ *
+ * Note that Permissions should refer to the string dictionary in the
+ * permission file. Additionally, note that if the staff field is set
+ * to true, querying the user's privileges will always return true.
+ */
+const userSchema = new Schema({
+  username      : { type: Types.String, required: true },
+  password      : { type: Types.String, required: true },
+  name          : {
+    first       : { type: Types.String, required: true },
+    last        : { type: Types.String, required: true }, },
+  email         : { type: Types.String, required: true },
+  staff         : { type: Types.Boolean, default: false },
+  permissions   : { type: 'Permissions', default: () => new Permissions() },
+});
+
+// Connect to the passport
 userSchema.plugin(passportLocalMongoose);
+
 const User = mongoose.model('User', userSchema);
 
 
@@ -28,7 +69,7 @@ const questionSchema = new Schema({
   subject     : { type: Types.String, enum: game.SUBJECTS, required: true },
   bonus       : { type: Types.ObjectId, ref: 'Question' },
   difficulty  : { type: Types.Number },
-  permission  : { type: Types.Number, enum: game.PERMISSIONS, required: true, default: 1 }
+  visibility  : { type: Types.Number, enum: game.VISIBILITY, required: true, default: 1 }
 }, { discriminatorKey: 'kind' });
 const Question = mongoose.model('Question', questionSchema);
 
@@ -39,12 +80,22 @@ const multipleChoiceSchema = new Schema({
        text     : { type: Types.String } }], required: true, validate: arr => arr.length === game.CHOICES.length },
   answer        : { type: Types.String, enum: game.CHOICES, required: true }
 });
+
+multipleChoiceSchema.methods.update = function(data) {
+  console.log(2);
+};
+
 const MultipleChoiceQuestion = Question.discriminator('MultipleChoiceQuestion', multipleChoiceSchema);
 
 
 const shortAnswerSchema = new Schema({
   answer  : { type: Types.String, required: true }
 });
+
+shortAnswerSchema.methods.update = function(data) {
+  console.log(3);
+};
+
 const ShortAnswerQuestion = Question.discriminator('ShortAnswerQuestion', shortAnswerSchema);
 
 

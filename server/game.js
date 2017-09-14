@@ -1,6 +1,6 @@
 module.exports = {
 
-  PERMISSIONS: [
+  VISIBILITY: [
     0,  // Anonymous
     1,  // User
     2   // Staff

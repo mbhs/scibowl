@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
-const passportLocal = require('passport-local');
 const expressSession = require('express-session');
 const methodOverride = require('method-override');
 const console = require('console');
@@ -55,8 +54,8 @@ app.get('*', (req, res) => res.sendFile(__dirname + '/dist/index.html'));
 console.log("Bound routes...");
 
 // Test database.
-// const tests = require("./server/tests");
-// tests.run();
+const tests = require("./server/tests");
+tests();
 
 // Start the server
 console.log('Starting server on port ' + port);

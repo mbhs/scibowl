@@ -8,7 +8,6 @@ const validate = require('../validate');
 const router = express.Router();
 
 
-/** Register a user. */
 router.post('/register', (req, res) => {
 
   /* Validate submitted credentials and information. */
@@ -66,10 +65,10 @@ router.post('/register', (req, res) => {
 router.post('/login', (req, res) => {
 
   /* Parse posted data. */
-  let username, password;
   try {
-    validate.username(req.body['username'], 'username');
-    validate.password(req.body['password'], 'password');
+    /* Only validation is necessary, as authentication is handled by the authentication method. */
+    validate.username(req.body['username']);
+    validate.password(req.body['password']);
   } catch (err) {
     if (err instanceof validate.ValidationError) {
       res.status(400).send({ reason: err.reason });
@@ -103,18 +102,26 @@ router.post('/login', (req, res) => {
 
 });
 
+
 router.get('/authenticated', (req, res) => {
+
   if (req.user) res.status(200).send({});
   else res.status(401).send({});
+
 });
 
+
 router.post('/logout', (req, res) => {
+
   if (req.user) {
     req.logout();
     res.status(200).send({});
     return;
   }
+
   res.status(400).send({})
+
 });
+
 
 module.exports = router;
