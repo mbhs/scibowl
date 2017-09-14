@@ -4,45 +4,10 @@ const passportLocalMongoose = require("passport-local-mongoose");
 const Schema = mongoose.Schema;
 const Types = Schema.Types;
 
-const permissions = require('./permissions');
 const game = require('./game');
 const validate = require('./validate');
 
-let permissionNames = [];
-for (let name of Object.keys(permissions))
-  if (permissions.hasOwnProperty(name))
-    permissionNames.push(permissions[name]);
-
-
-/** A simple permissions container.
- *
- * Provides several useful methods for adding, checking, and removing
- * permissions from users. A new permissions object is created when
- * a user is instantiated.
- */
-const permissionsSchema = new Schema({
-  names   : { type: [Types.String], validate: array => array.every(s => permissionNames.indexOf(s) > -1) },
-  all     : { type: Types.Boolean, default: false },
-});
-
-/** Check if a permissions object has a permission by name. */
-permissionsSchema.methods.has = function(...names) {
-  if (this.all) return true;
-  for (let name of names) { if (this.names.indexOf(name) === -1) return false }
-  return true;
-};
-
-/** Add a permission. */
-permissionsSchema.methods.add = function(name) {
-  if (!this.has(name)) this.names.push(name);
-};
-
-/** Remove a permission. */
-permissionsSchema.methods.remove = function(name) {
-  if (this.has(name)) this.names.pop(this.names.indexOf(name));
-};
-
-const Permissions = mongoose.model('Permissions', permissionsSchema);
+const roles = { user: 1, staff: 2, superuser: 3 };
 
 
 /** Defines a user class for use throughout the site.
@@ -51,13 +16,13 @@ const Permissions = mongoose.model('Permissions', permissionsSchema);
  * permission file.
  */
 const userSchema = new Schema({
-  username      : { type: Types.String, required: true },
-  password      : { type: Types.String, required: true },
-  name          : {
-    first       : { type: Types.String, required: true },
-    last        : { type: Types.String, required: true }, },
-  email         : { type: Types.String, required: true },
-  permissions   : { type: Types.ObjectId, ref: 'Permissions', default: () => new Permissions() },
+  username  : { type: Types.String, required: true },
+  password  : { type: Types.String, required: true },
+  name      : {
+    first   : { type: Types.String, required: true },
+    last    : { type: Types.String, required: true }, },
+  email     : { type: Types.String, required: true },
+  role      : { type: Types.Number, default: 1 },
 });
 
 /** Connect to the passport. */
@@ -156,7 +121,7 @@ const TryoutRound = Round.discriminator('TryoutRound', tryoutSchema);
 
 
 module.exports = {
-  Permissions: Permissions,
+  roles: roles,
   User: User,
   Question: Question,
   MultipleChoiceQuestion: MultipleChoiceQuestion,

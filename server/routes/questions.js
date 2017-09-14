@@ -8,6 +8,8 @@ const game = require('../game');
 
 router.post('/new', (req, res) => {
 
+  if (!req.user || req.user.role < models.roles.staff) return;
+
   // Create a question with arbitrary type
   let question;
   if (req.body['type'] === game.MC) {
@@ -23,7 +25,10 @@ router.post('/new', (req, res) => {
 
 });
 
+
 router.post('/:id/edit', (req, res) => {
+
+  if (!req.user || req.user.role < models.roles.staff) return;
 
   // Find and update the question
   models.Question.findById(req.params.id, (err, question) => {
@@ -34,9 +39,10 @@ router.post('/:id/edit', (req, res) => {
 
 });
 
+
 router.get('/:id', (req, res) => {
 
-  console.log(req.user);
+  if (!req.user || req.user.role < models.roles.staff) return;
 
   // Find and send the question
   models.Question.findById(req.params.id, (err, question) => {
