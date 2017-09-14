@@ -15,8 +15,8 @@ router.post('/register', (req, res) => {
   try {
     username = validate.username(req.body['username']);
     password = validate.password(req.body['password']);
-    firstName = validate.name(req.body['firstName']);
-    lastName = validate.name(req.body['lastName']);
+    firstName = validate.name(req.body['name']['first']);
+    lastName = validate.name(req.body['name']['last']);
     email = validate.email(req.body['email']);
   } catch (err) {
     if (err instanceof validate.Error) {
@@ -103,7 +103,7 @@ router.post('/login', (req, res) => {
 });
 
 
-router.get('/authenticated', (req, res) => {
+router.get('/status', (req, res) => {
 
   if (req.user) res.status(200).send({});
   else res.status(401).send({});

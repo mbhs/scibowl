@@ -8,6 +8,9 @@ module.exports = {
 
   CHOICES: ["W", "X", "Y", "Z"],
 
+  MC: "mc",
+  SA: "sa",
+
   SUBJECTS: ["math", "ess", "chemistry", "physics", "biology", "energy"]
 
 };

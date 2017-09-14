@@ -33,5 +33,4 @@ module.exports.email = function(email) {
   return email;
 };
 
-
 module.exports.Error = Error;

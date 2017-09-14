@@ -3,46 +3,46 @@ const console = require('console');
 const router = express.Router();
 
 const models = require('../models');
+const game = require('../game');
 
-
-function updateQuestion(question, data) {
-  if (data['type'] === 'MultipleChoice') {
-    data.choices = data;
-  }
-
-  question.text = data['text'];
-  question.subject = data['subject'];
-  question.answer = data['answer'];
-}
 
 router.post('/new', (req, res) => {
+
+  // Create a question with arbitrary type
   let question;
-
-  if (req.body['type'] === 'MultipleChoice') {
+  if (req.body['type'] === game.MC) {
     question = new models.MultipleChoiceQuestion();
-  } else if (req.body['type'] === 'ShortAnswer') {
+  } else if (req.body['type'] === game.SA) {
     question = new models.ShortAnswerQuestion();
-  } else res.status(500).send("'type' must be one of 'ShortAnswer' or 'MultipleChoice'");
+  } else res.status(500).send("question type must be one of " + [game.MC, game.SA].join(", "));
 
-  updateQuestion(question, req.body);
+  // Update and save the question
+  question.update(req.body);
   question.save(err => { if (err) throw err });
-
   res.send({ id: question._id });
+
 });
 
 router.post('/:id/edit', (req, res) => {
-  models.Question.findById(req.params.id, (err, question) => {
-    updateQuestion(question, req.body);
-    question.save(err => { if (err) throw err });
 
-    res.send({ });
+  // Find and update the question
+  models.Question.findById(req.params.id, (err, question) => {
+    question.update(req.body);
+    question.save(err => { if (err) throw err });
+    res.send({});
   });
+
 });
 
 router.get('/:id', (req, res) => {
+
+  console.log(req.user);
+
+  // Find and send the question
   models.Question.findById(req.params.id, (err, question) => {
     res.send(question);
   });
+
 });
 
 module.exports = router;

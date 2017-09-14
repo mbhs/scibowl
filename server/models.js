@@ -6,6 +6,7 @@ const Types = Schema.Types;
 
 const permissions = require('./permissions');
 const game = require('./game');
+const validate = require('./validate');
 
 let permissionNames = [];
 for (let name of Object.keys(permissions))
@@ -13,28 +14,30 @@ for (let name of Object.keys(permissions))
     permissionNames.push(permissions[name]);
 
 
-/* A simple permissions container.
+/** A simple permissions container.
  *
  * Provides several useful methods for adding, checking, and removing
  * permissions from users. A new permissions object is created when
  * a user is instantiated.
  */
 const permissionsSchema = new Schema({
-  names   : { type: [Types.String], validate: array => array.every(s => permissionNames.indexOf(s) > -1) }
+  names   : { type: [Types.String], validate: array => array.every(s => permissionNames.indexOf(s) > -1) },
+  all     : { type: Types.Boolean, default: false },
 });
 
-// Check if a permissions object has a permission by name
+/** Check if a permissions object has a permission by name. */
 permissionsSchema.methods.has = function(...names) {
+  if (this.all) return true;
   for (let name of names) { if (this.names.indexOf(name) === -1) return false }
   return true;
 };
 
-// Add a permission
+/** Add a permission. */
 permissionsSchema.methods.add = function(name) {
   if (!this.has(name)) this.names.push(name);
 };
 
-// Remove a permission
+/** Remove a permission. */
 permissionsSchema.methods.remove = function(name) {
   if (this.has(name)) this.names.pop(this.names.indexOf(name));
 };
@@ -42,11 +45,10 @@ permissionsSchema.methods.remove = function(name) {
 const Permissions = mongoose.model('Permissions', permissionsSchema);
 
 
-/* Defines a user class for use throughout the site.
+/** Defines a user class for use throughout the site.
  *
  * Note that Permissions should refer to the string dictionary in the
- * permission file. Additionally, note that if the staff field is set
- * to true, querying the user's privileges will always return true.
+ * permission file.
  */
 const userSchema = new Schema({
   username      : { type: Types.String, required: true },
@@ -55,17 +57,20 @@ const userSchema = new Schema({
     first       : { type: Types.String, required: true },
     last        : { type: Types.String, required: true }, },
   email         : { type: Types.String, required: true },
-  staff         : { type: Types.Boolean, default: false },
   permissions   : { type: Types.ObjectId, ref: 'Permissions', default: () => new Permissions() },
 });
 
-// Connect to the passport
+/** Connect to the passport. */
 userSchema.plugin(passportLocalMongoose);
 
 const User = mongoose.model('User', userSchema);
 
 
-// Questions
+/** Shared characteristics of all Science Bowl questions.
+ *
+ * This is the base class for the multiple choice and short answer
+ * questions.
+ */
 const questionSchema = new Schema({
   author      : { type: Types.ObjectId, ref: 'User' },
   text        : { type: Types.String, required: true },
@@ -77,29 +82,48 @@ const questionSchema = new Schema({
 const Question = mongoose.model('Question', questionSchema);
 
 
-const multipleChoiceSchema = new Schema({
-  choices       : { type:
-    [{ choice   : { type: Types.String },
-       text     : { type: Types.String } }], required: true, validate: arr => arr.length === game.CHOICES.length },
-  answer        : { type: Types.String, enum: game.CHOICES, required: true }
+/** Model defining multiple choice questions.
+ *
+ * The choices field must contain a list of anonymous models each with
+ * a choice and text attribute. The choice corresponds to one of the
+ * four letter options, and the text corresponds to the actual
+ * response.
+ */
+const multipleChoiceQuestionSchema = new Schema({
+  choices   : { type: [{ choice   : { type: Types.String, enum: game.CHOICES, required: true },
+                         text     : { type: Types.String, required: true } }],
+                required: true, validate: array => array.length === game.CHOICES.length },
+  answer    : { type: Types.String, enum: game.CHOICES, required: true }
 });
 
-multipleChoiceSchema.methods.update = function(data) {
-  console.log(2);
+/** Update a multiple choice question from response data. */
+multipleChoiceQuestionSchema.methods.update = function(data) {
+  this.subject = data['subject'] || this.subject;
+  this.text = data['text'] || this.text;
+  this.choices = data['choices'] || this.choices;  // Todo: actually implement error checking
+  this.answer = data['answer'] || this.answer;
 };
 
-const MultipleChoiceQuestion = Question.discriminator('MultipleChoiceQuestion', multipleChoiceSchema);
+const MultipleChoiceQuestion = Question.discriminator('MultipleChoiceQuestion', multipleChoiceQuestionSchema);
 
 
-const shortAnswerSchema = new Schema({
+/** Short answer question model.
+ *
+ * The only extra part to a short answer question model is the open
+ * ended answer field, which accepts any string.
+ */
+const shortAnswerQuestionSchema = new Schema({
   answer  : { type: Types.String, required: true }
 });
 
-shortAnswerSchema.methods.update = function(data) {
-  console.log(3);
+/** Update a short answer question from response data. */
+shortAnswerQuestionSchema.methods.update = function(data) {
+  this.subject = data['subject'] || this.subject;
+  this.text = data['text'] || this.text;
+  this.answer = data['answer'] || this.answer;
 };
 
-const ShortAnswerQuestion = Question.discriminator('ShortAnswerQuestion', shortAnswerSchema);
+const ShortAnswerQuestion = Question.discriminator('ShortAnswerQuestion', shortAnswerQuestionSchema);
 
 
 // Rounds
