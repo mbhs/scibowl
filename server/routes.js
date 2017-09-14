@@ -7,4 +7,7 @@ router.use('/questions', questions);
 const user = require('./routes/users');
 router.use('/users', user);
 
+const tryout = require('./routes/tryout');
+router.use('/tryout', tryout);
+
 module.exports = router;

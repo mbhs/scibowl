@@ -24,17 +24,16 @@ router.get('/next', (req, res) => {
             result.questions[questionNumber - 1].status = 'skipped';
           }
 
-          result.save().then(() => {
-            // Get the next question
-            if (questionNumber < tryout.questions.length) {
-              const question = tryout.questions[questionNumber];
-              // Mark that they've seen the question
-              result.questions.push({ question: question, time: Date.now(), status: 'current' });
-              result.save().then(() => res.send({ text: question.text, choices: question.choices }));
-            } else {
-              res.send({ });
-            }
-          });
+          let returnData = { };
+          // Get the next question
+          if (questionNumber < tryout.questions.length) {
+            const question = tryout.questions[questionNumber];
+            // Mark that they've seen the question
+            result.questions.push({ question: question, time: Date.now(), status: 'current' });
+            returnData = { text: question.text, choices: question.choices };
+          }
+
+          result.save().then(() => res.send(returnData));
         })
     )
   }
