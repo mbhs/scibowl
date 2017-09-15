@@ -4,9 +4,14 @@ const console = require('console');
 
 const models = require('../models');
 const validate = require('../validate');
+const game = require('../game');
 
 const router = express.Router();
 
+
+function activeTryout() {
+  return models.Tryout.findOne().where('start').lt(Date.now()).where('end').gt(Date.now()).populate('questions');
+}
 
 router.post('/next', (req, res) => {
 
@@ -15,7 +20,7 @@ router.post('/next', (req, res) => {
     return;
   }
 
-  models.TryoutRound.findOne().populate('questions').then(tryout =>
+  activeTryout().then(tryout =>
     models.TryoutResults.findOne({ user: req.user })
       // Access the user's tryout, or create it if it doesn't exist
       .then(result => result ? result : models.TryoutResults.create({ user: req.user, questions : [] }))
@@ -45,7 +50,7 @@ router.post('/skip', (req, res) => {
     return;
   }
 
-  models.TryoutRound.findOne().populate('questions').then(tryout =>
+  activeTryout().then(tryout =>
     models.TryoutResults.findOne({ user: req.user })
       // Access the user's tryout
       .then(result => {
@@ -63,7 +68,12 @@ router.post('/skip', (req, res) => {
 
 router.post('/submit', (req, res) => {
 
-  models.TryoutRound.findOne().populate('questions').then(tryout =>
+  if (!req.user) {
+    res.status(401).send({ });
+    return;
+  }
+
+  activeTryout().then(tryout =>
     models.TryoutResults.findOne({ user: req.user }).then(result => {
       const questionNumber = result.questions.length - 1;
       const question = result.questions[questionNumber];
@@ -83,6 +93,38 @@ router.post('/submit', (req, res) => {
       result.save().then(() => res.send({ }));
     })
   )
+
+});
+
+router.get('/results', (req, res) => {
+
+  if (!req.user) {
+    res.status(401).send({ });
+    return;
+  }
+
+  models.Tryout.find().where('end').lt(Date.now()).sort('end').then(tryouts => {
+    models.TryoutResults.find().where('tryout').in(tryouts).populate('tryout').then(results => {
+      const participated = {};
+
+      for (let result of results) {
+        const scores = [];
+
+        for (let subject of game.SUBJECTS) {
+          scores[subject] = results.questions.filter(question => question.status === 'correct').length * game.TRYOUT_CORRECT +
+            results.questions.filter(question => question.status === 'correct').length * game.TRYOUT_INCORRECT;
+        }
+
+        participated.push({
+          start: result.tryout.start,
+          end: result.tryout.end,
+          scores: scores
+        });
+      }
+
+      res.send(participated);
+    });
+  });
 
 });
 

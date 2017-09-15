@@ -21,7 +21,8 @@ const userSchema = new Schema({
   password  : { type: Types.String, required: true },
   name      : {
     first   : { type: Types.String, required: true },
-    last    : { type: Types.String, required: true }, },
+    last    : { type: Types.String, required: true },
+  },
   email     : { type: Types.String, required: true },
   role      : { type: Types.Number, default: 1 },  // TODO: validate
 });
@@ -38,12 +39,12 @@ const User = mongoose.model('User', userSchema);
  * questions.
  */
 const questionSchema = new Schema({
-  author      : { type: Types.ObjectId, ref: 'User' },
-  text        : { type: Types.String, required: true },
-  subject     : { type: Types.String, enum: game.SUBJECTS, required: true },
-  bonus       : { type: Types.ObjectId, ref: 'Question' },
-  difficulty  : { type: Types.Number },
-  visibility  : { type: Types.Number, enum: game.VISIBILITY, required: true, default: 1 }
+  author       : { type: Types.ObjectId, ref: 'User' },
+  text         : { type: Types.String, required: true },
+  subject      : { type: Types.String, enum: game.SUBJECTS, required: true },
+  bonus        : { type: Types.ObjectId, ref: 'Question' },
+  difficulty   : { type: Types.Number },
+  visibility   : { type: Types.Number, enum: game.VISIBILITY, required: true, default: 1 }
 }, { discriminatorKey: 'kind' });
 const Question = mongoose.model('Question', questionSchema);
 
@@ -56,8 +57,8 @@ const Question = mongoose.model('Question', questionSchema);
  * response.
  */
 const choiceSchema = new Schema({
-  choice: { type: Types.String, enum: game.CHOICES, required: true },
-  text: { type: Types.String, required: true }
+  choice:   { type: Types.String, enum: game.CHOICES, required: true },
+  text:     { type: Types.String, required: true }
 });
 
 const multipleChoiceQuestionSchema = new Schema({
@@ -82,7 +83,7 @@ const MultipleChoiceQuestion = Question.discriminator('MultipleChoiceQuestion', 
  * ended answer field, which accepts any string.
  */
 const shortAnswerQuestionSchema = new Schema({
-  answer  : { type: Types.String, required: true }
+  answer   : { type: Types.String, required: true }
 });
 
 /** Update a short answer question from response data. */
@@ -97,9 +98,9 @@ const ShortAnswerQuestion = Question.discriminator('ShortAnswerQuestion', shortA
 
 // Rounds
 const roundSchema = new Schema({
-  owner       : { type: Types.ObjectId, ref: 'User' },
-  questions   : [{ type: Types.ObjectId, ref: 'Question', required: true }],
-  permission  : { type: Types.Number, enum: game.PERMISSIONS, required: true, default: 1 }
+  owner        : { type: Types.ObjectId, ref: 'User' },
+  questions    : [{ type: Types.ObjectId, ref: 'Question', required: true }],
+  permission   : { type: Types.Number, enum: game.PERMISSIONS, required: true, default: 1 }
 }, { discriminatorKey: 'kind '});
 const Round = mongoose.model('Round', roundSchema);
 
@@ -117,23 +118,27 @@ const View = mongoose.model('View', viewSchema);
 
 
 // Tryout round
-const tryoutSchema = new Schema({ });
-const TryoutRound = Round.discriminator('TryoutRound', tryoutSchema);
+const tryoutSchema = new Schema({
+  start   : { type: Types.Date, required: true },
+  end     : { type: Types.Date, required: true }
+});
+const Tryout = Round.discriminator('Tryout', tryoutSchema);
 
 
 // Tryout question result
 const tryoutQuestionResultStatus = ['correct', 'incorrect', 'skipped', 'current'];
 const tryoutQuestionResultSchema = new Schema({
-  question: { type: Schema.Types.ObjectId, ref: 'MultipleChoiceQuestion', required: true },
-  time: { type: Schema.Types.Date, required: true },
-  status: { type: Schema.Types.String, enum: tryoutQuestionResultStatus }
+  question:   { type: Schema.Types.ObjectId, ref: 'MultipleChoiceQuestion', required: true },
+  time:       { type: Schema.Types.Date, required: true },
+  status:     { type: Schema.Types.String, enum: tryoutQuestionResultStatus }
 });
 
 
 // Tryout round result
 const tryoutResultsSchema = new Schema({
-  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  questions: [ tryoutQuestionResultSchema ]
+  tryout:      { type: Schema.Types.ObjectId, ref: 'Tryout', required: true },
+  user:        { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  questions:   [ tryoutQuestionResultSchema ]
 });
 const TryoutResults = mongoose.model('TryoutResults', tryoutResultsSchema);
 
@@ -145,6 +150,6 @@ module.exports = {
   MultipleChoiceQuestion: MultipleChoiceQuestion,
   ShortAnswerQuestion: ShortAnswerQuestion,
   Round: Round,
-  TryoutRound: TryoutRound,
+  Tryout: Tryout,
   TryoutResults: TryoutResults
 };

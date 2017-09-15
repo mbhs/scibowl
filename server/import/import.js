@@ -9,7 +9,7 @@ const fs = require('fs');
 
 fs.readFile('tryout_questions.csv', (err, data) => {
   const entries = parse(data);
-  const round = models.TryoutRound({ questions: [] });
+  const round = models.Tryout({ questions: [] });
 
   // Subject	Type	Question	W	X	Y	Z					ANSWER	Difficulty	Time Alloted
   for (const entry of entries) {
