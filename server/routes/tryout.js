@@ -47,6 +47,8 @@ router.post('/submit', (req, res) => {
       const questionNumber = result.questions.length - 1;
       const question = result.questions[questionNumber];
 
+      // Check time
+
       if (question.status !== 'current') {
         res.status(409).send({ reason: 'question is not current' });
       }

@@ -1,4 +1,4 @@
-const validator = require("validator");
+const validator = require('validator');
 
 
 class Error { constructor(reason) { this.reason = reason; } }
