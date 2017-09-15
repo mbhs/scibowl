@@ -9,6 +9,7 @@ const router = express.Router();
 
 
 router.post('/register', (req, res) => {
+  console.log(req.body);
 
   /* Validate submitted credentials and information. */
   let username, password, firstName, lastName, email;

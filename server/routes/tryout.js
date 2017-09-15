@@ -8,46 +8,67 @@ const validate = require('../validate');
 const router = express.Router();
 
 
-router.get('/next', (req, res) => {
+router.post('/next', (req, res) => {
 
-  if (req.user) {
-    models.TryoutRound.findOne().then((err, tryout) =>
-      models.TryoutResults.findOne({ user: req.user })
-      // Access the user's tryout, or create it if it doesn't exist
-        .then(result => result ? result : models.TryoutResults.create({ user: req.user, questions : [] }))
-        .then(result => {
-          // Get the question number of the next question
-          const questionNumber = result.questions.length;
-
-          // If their previous question is still active (they haven't submitted), mark it as skipped
-          if (questionNumber > 0 && result.questions[questionNumber - 1].status === 'current') {
-            result.questions[questionNumber - 1].status = 'skipped';
-          }
-
-          let returnData = { };
-          // Get the next question
-          if (questionNumber < tryout.questions.length) {
-            const question = tryout.questions[questionNumber];
-            // Mark that they've seen the question
-            result.questions.push({ question: question, time: Date.now(), status: 'current' });
-            returnData = { text: question.text, choices: question.choices };
-          }
-
-          result.save().then(() => res.send(returnData));
-        })
-    )
+  if (!req.user) {
+    res.status(401).send({ });
+    return;
   }
+
+  models.TryoutRound.findOne().populate('questions').then(tryout =>
+    models.TryoutResults.findOne({ user: req.user })
+      // Access the user's tryout, or create it if it doesn't exist
+      .then(result => result ? result : models.TryoutResults.create({ user: req.user, questions : [] }))
+      .then(result => {
+        // Todo: next question if current time has expired
+        // If their previous question is still active (they haven't submitted), mark it as skipped
+        if (result.questions.length > 0 && result.questions[result.questions.length - 1].status === 'current') {
+          const question = tryout.questions[result.questions.length - 1];
+          res.send({ text: question.text, choices: question.choices });
+        } else if (result.questions.length < tryout.questions.length) {
+          const question = tryout.questions[result.questions.length];
+          // Mark that they've seen the question
+          result.questions.push({ question: question, time: Date.now(), status: 'current' });
+          result.save().then(() => res.send({ text: question.text, choices: question.choices }));
+        } else {
+          res.send({ });
+        }
+      })
+  );
+
+});
+
+router.post('/skip', (req, res) => {
+
+  if (!req.user) {
+    res.status(401).send({ });
+    return;
+  }
+
+  models.TryoutRound.findOne().populate('questions').then(tryout =>
+    models.TryoutResults.findOne({ user: req.user })
+      // Access the user's tryout
+      .then(result => {
+        // If their previous question is still active (they haven't submitted), mark it as skipped
+        if (result.questions.length > 0 && result.questions[result.questions.length - 1].status === 'current') {
+          result.questions[result.questions.length - 1].status = 'skipped';
+          result.save().then(() => res.send({ }));
+        } else {
+          res.status(409).send({ reason: 'question is not current' });
+        }
+      })
+  );
 
 });
 
 router.post('/submit', (req, res) => {
 
-  models.TryoutRound.findOne().then((err, tryout) =>
+  models.TryoutRound.findOne().populate('questions').then(tryout =>
     models.TryoutResults.findOne({ user: req.user }).then(result => {
       const questionNumber = result.questions.length - 1;
       const question = result.questions[questionNumber];
 
-      // Check time
+      // Todo: Check time
 
       if (question.status !== 'current') {
         res.status(409).send({ reason: 'question is not current' });

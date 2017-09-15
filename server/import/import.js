@@ -30,5 +30,5 @@ fs.readFile('tryout_questions.csv', (err, data) => {
     round.questions.push(question);
   }
 
-  round.save();
+  round.save().catch(err => console.log(err));
 });
