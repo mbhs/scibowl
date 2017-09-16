@@ -7,11 +7,13 @@ const models = require('../models');
 const parse = require('csv-parse/lib/sync');
 const fs = require('fs');
 
+const START = new Date('September 15, 2017 18:00:00');
+const END = new Date('September 19, 2017 00:00:00');
+
 fs.readFile('tryout_questions.csv', (err, data) => {
   const entries = parse(data);
-  const round = models.Tryout({ questions: [] });
+  const tryout = models.Tryout({ start: START, end: END, questions: [] });
 
-  // Subject	Type	Question	W	X	Y	Z					ANSWER	Difficulty	Time Alloted
   for (const entry of entries) {
     const question = new models.MultipleChoiceQuestion({
       subject: entry[0],
@@ -27,8 +29,8 @@ fs.readFile('tryout_questions.csv', (err, data) => {
     });
     question.save();
 
-    round.questions.push(question);
+    tryout.questions.push(question);
   }
 
-  round.save().catch(err => console.log(err));
+  tryout.save().catch(err => console.log(err));
 });

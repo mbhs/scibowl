@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { Http } from '@angular/http';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/toPromise';
 
 import { StatusService } from '../status.service';
 
@@ -7,5 +10,15 @@ import { StatusService } from '../status.service';
   templateUrl: './index.component.html'
 })
 export class IndexComponent {
-  constructor (private status: StatusService) { }
+  tryout: any = null;
+
+  constructor (public status: StatusService, private http: Http) {
+    this.http.get('/api/tryout/active').subscribe(res => {
+      if (res.status === 200) {
+        this.tryout = res.json();
+      } else {
+        this.tryout = null;
+      }
+    });
+  }
 }

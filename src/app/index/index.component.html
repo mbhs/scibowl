@@ -1,8 +1,25 @@
 <div class="jumbotron">
   <div class="container">
     <h1 class="display-2">Blair Science Bowl</h1>
-    <p>The Science Bowl Team at Montgomery Blair High School in Silver Spring, MD is one of the most successful and recognized Science Bowl teams in the nation.</p>
-    <p><a class="btn btn-primary btn-lg" routerLink="/tryout">Tryout <i class="fa fa-arrow-right"></i></a></p>
+    <p>The Science Bowl Team at Montgomery Blair High School in Silver Spring, MD is one of the most successful Science Bowl teams in the nation.</p>
+  </div>
+</div>
+
+<div *ngIf="tryout" class="card text-white bg-dark mb-3">
+  <div class="card-body">
+    <h4 class="card-title">Tryouts Are Live!</h4>
+
+    <p class="card-text">
+      This year's Science Bowl tryout is active from {{ tryout.start | date:'fullDate' }} at {{ tryout.start | date:'shortTime' }} to {{ tryout.end | date:'fullDate' }} at {{ tryout.end | date:'shortTime' }}. We've worked hard to put together a diverse array of questions to find the best potential Science Bowlers in all of Blair; we wish you the best of luck!
+    </p>
+
+    <p class="card-text">
+      <ng-container *ngIf="!status.user">
+        <a class="btn btn-primary" routerLink="/user/register">Register <i class="fa fa-user-plus"></i></a>
+        <a class="btn btn-primary" routerLink="/user/login">Login <i class="fa fa-user"></i></a>
+      </ng-container>
+      <a *ngIf="status.user" class="btn btn-primary" routerLink="/tryout">Tryout! <i class="fa fa-arrow-right"></i></a>
+    </p>
   </div>
 </div>
 

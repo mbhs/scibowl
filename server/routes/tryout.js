@@ -13,10 +13,20 @@ function activeTryout() {
   return models.Tryout.findOne().where('start').lt(Date.now()).where('end').gt(Date.now()).populate('questions');
 }
 
+
+router.get('/active', (req, res) => {
+
+  activeTryout().then(tryout => {
+    res.send({ start: tryout.start, end: tryout.end });
+  }, () => res.status(204).send());
+
+});
+
+
 router.post('/next', (req, res) => {
 
   if (!req.user) {
-    res.status(401).send({ });
+    res.status(401).send();
     return;
   }
 
@@ -41,7 +51,7 @@ router.post('/next', (req, res) => {
             number: result.questions.length - 1
           }));
         } else {
-          res.send({ });
+          res.status(204).send();
         }
       })
   );
@@ -51,7 +61,7 @@ router.post('/next', (req, res) => {
 router.post('/skip', (req, res) => {
 
   if (!req.user) {
-    res.status(401).send({ });
+    res.status(401).send();
     return;
   }
 
@@ -74,7 +84,7 @@ router.post('/skip', (req, res) => {
 router.post('/submit', (req, res) => {
 
   if (!req.user) {
-    res.status(401).send({ });
+    res.status(401).send();
     return;
   }
 

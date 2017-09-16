@@ -17,6 +17,7 @@ export class TryoutComponent {
   agreed: Boolean = false;
   started: Boolean = false;
   stopped: Boolean = false;
+  ended: Boolean = false;
 
   question = {
     number: 0,
@@ -30,11 +31,15 @@ export class TryoutComponent {
   constructor(private http: Http) { }
 
   nextQuestion() {
-    this.http.post('/api/tryout/next', { }).map(res => res.json()).subscribe(question => {
-      this.started = true;
-      this.stopped = false;
-      this.question = question;
-      this.answerChoice = '';
+    this.http.post('/api/tryout/next', { }).subscribe(res => {
+      if (res.status === 200) {
+        this.started = true;
+        this.stopped = false;
+        this.question = res.json();
+        this.answerChoice = '';
+      } else if (res.status === 204) {
+        this.ended = true;
+      }
     });
   }
 

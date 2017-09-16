@@ -8,16 +8,20 @@
   <div class="form-group row">
     <label class="col-sm-2 col-form-label" for="username"><strong>Username</strong></label>
     <div class="col-sm-10">
-      <input class="form-control" formControlName="username" id="username" placeholder="Username">
+      <input class="form-control" formControlName="username" id="username" placeholder="Username"
+             [class.is-valid]="loginForm.controls['username'].valid && loginForm.controls['username'].touched"
+             [class.is-invalid]="!loginForm.controls['username'].valid && loginForm.controls['username'].touched">
     </div>
   </div>
 
   <div class="form-group row">
     <label class="col-sm-2 col-form-label" for="password"><strong>Password</strong></label>
     <div class="col-sm-10">
-      <input type="password" class="form-control" formControlName="password" id="password" placeholder="Password">
+      <input type="password" class="form-control" formControlName="password" id="password" placeholder="Password"
+             [class.is-valid]="loginForm.controls['password'].valid && loginForm.controls['password'].touched"
+             [class.is-invalid]="!loginForm.controls['password'].valid && loginForm.controls['password'].touched">
     </div>
   </div>
 
-  <button type="submit" class="btn btn-success">Login!</button>
+  <button type="submit" class="btn btn-success" [disabled]="!loginForm.valid">Login!</button>
 </form>

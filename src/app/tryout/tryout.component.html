@@ -23,7 +23,7 @@
     <button type="button" class="btn btn-primary btn-block" [disabled]="!agreed" (click)="nextQuestion()">Start! <i class="fa fa-clock-o"></i></button>
   </ng-container>
 
-  <ng-container *ngIf="started">
+  <ng-container *ngIf="started && !ended">
     <div class="clearfix">
       <h3 class="float-sm-left">Question {{ question.number }}</h3>
       <button type="button" class="btn btn-primary float-sm-right" (click)="nextQuestion()" *ngIf="stopped">Next question <i class="fa fa-arrow-right"></i></button>
@@ -42,5 +42,9 @@
 
     <br/><br/>
     <button type="button" class="btn btn-success" (click)="submit()" [disabled]="stopped || !answerChoice">Submit <i class="fa fa-check"></i></button>
+  </ng-container>
+
+  <ng-container *ngIf="ended">
+    Congratulations! You've finished the Blair Science Bowl online tryout. Your scores will be available online immediately after the tryout window closes. Shortly after, we will inform those who are invited to the buzzer tryouts. Best of luck!
   </ng-container>
 </div>

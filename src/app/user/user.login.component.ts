@@ -20,7 +20,6 @@ export class UserLoginComponent {
   }
 
   submit() {
-    console.log("YO WASSUP");
     this.status.login(this.loginForm.controls['username'].value, this.loginForm.controls['password'].value).then(
       () => {
         this.router.navigateByUrl('/');
