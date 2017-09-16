@@ -132,7 +132,7 @@ const tryoutQuestionResultSchema = new Schema({
 const tryoutResultsSchema = new Schema({
   tryout:      { type: Schema.Types.ObjectId, ref: 'Tryout', required: true },
   user:        { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  questions:   [ tryoutQuestionResultSchema ]
+  questions:   { type: [ tryoutQuestionResultSchema ], default: [] },
 });
 const TryoutResults = mongoose.model('TryoutResults', tryoutResultsSchema);
 

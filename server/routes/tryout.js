@@ -9,58 +9,75 @@ const game = require('../game');
 const router = express.Router();
 
 
-function activeTryout() {
-  return models.Tryout.findOne().where('start').lt(Date.now()).where('end').gt(Date.now()).populate('questions');
+/** Return a promise to the current tryout.
+ *
+ * TODO: The easier way to handle this is actually to just have a
+ * boolean active variable. The selection can be changed on the
+ * client side by an administrator.
+ */
+function getCurrentTryout() {
+  return models.Tryout.findOne()
+    .where('start').lt(Date.now())
+    .where('end').gt(Date.now())
+    .populate('questions');
 }
 
 
+/** Middleware that asserts the user has a tryout results model. */
+function assertHasTryoutResult(req, res, next) {
+  getCurrentTryout().then((tryout) => {
+    models.TryoutResults.findOne({ user: req.user, tryout: tryout }).then((tryoutResults) => {
+      if (!tryoutResults) models.TryoutResults.create({ user: req.user, tryout: tryout }).then(() => {
+        console.log("Created new tryout model!");
+        next();
+      });
+      else {
+        console.log("Already has tryout model.");
+        next();
+      }
+    });
+  });
+}
+
+
+/** Get the active tryout. */
 router.get('/active', (req, res) => {
-
-  activeTryout().then(tryout => {
-    res.send({ start: tryout.start, end: tryout.end });
-  }, () => res.status(204).send());
-
+  getCurrentTryout().then(
+    (tryout) => { res.send({ start: tryout.start, end: tryout.end }); },
+    () => res.status(204).send());
 });
 
 
-router.post('/next', (req, res) => {
+/** Get the next question for the user taking a tryout.
+ *
+ * This view first asserts that the user has a related tryout results
+ * model. After that, the next question the user should complete is
+ * determined and sent.
+ */
+router.post('/next', assertHasTryoutResult, (req, res) => {
 
-  if (!req.user) {
-    res.status(401).send();
-    return;
-  }
+  // Check that the user is authenticated
+  if (!req.user) { res.status(401).send(); return; }
 
-  activeTryout().then(tryout =>
-    models.TryoutResults.findOne({ user: req.user })
-      // Access the user's tryout, or create it if it doesn't exist
-      .then(result => result ? result : models.TryoutResults.create({ user: req.user, questions : [] }))
-      .then(result => {
-        let questionNumber = result.questions.length - 1;
-        let question;
+  getCurrentTryout().then(tryout =>
+    models.TryoutResults.findOne({ user: req.user }).then((tryoutResult) => {
 
-        // If their previous question is still active (they haven't submitted), mark it as skipped
-        if (seen < tryout.questions.length &&
-            !(result.questions.length > 0 && result.questions[questionNumber].status === 'current'
-              && Date.now() <= result.questions[questionNumber].released + tryout.questions[questionNumber].time * 1000)) {
-          questionNumber++;
-          question = tryout.questions[questionNumber].question;
+      // Get the next question number
+      let index = tryoutResult.questions.length - 1;
+      let question;
 
-          // Mark that they've seen the question
-          result.questions.push({ question: question, released: new Date(), status: 'current' });
-        } else {
-          res.status(204).send();
-          return;
-        }
+      
+      }
 
-        result.save().then(() => res.send({
-          text: question.text,
-          choices: question.choices,
-          subject: question.subject,
-          time: question.time,
-          number: questionNumber + 1,
-          released: result.questions[questionNumber].released
-        }));
-      })
+      tryoutResult.save().then(() => res.send({
+        text: question.text,
+        choices: question.choices,
+        subject: question.subject,
+        time: question.time,
+        number: index + 1,
+        released: tryoutResult.questions[index].released
+      }));
+    })
   );
 
 });
@@ -72,7 +89,7 @@ router.post('/skip', (req, res) => {
     return;
   }
 
-  activeTryout().then(tryout =>
+  getCurrentTryout().then(tryout =>
     models.TryoutResults.findOne({ user: req.user })
       // Access the user's tryout
       .then(result => {
@@ -96,7 +113,7 @@ router.post('/submit', (req, res) => {
     return;
   }
 
-  activeTryout().then(tryout =>
+  getCurrentTryout().then(tryout =>
     models.TryoutResults.findOne({ user: req.user }).then(result => {
       const questionNumber = result.questions.length - 1;
       const question = result.questions[questionNumber];
