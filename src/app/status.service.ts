@@ -20,7 +20,7 @@ export class StatusService {
     return this.http.post('/api/users/logout', { }).map(res => res.json()).toPromise().then(() => this.reload());
   }
 
-  reload() {
-    this.http.get('/api/users/status').map(res => res.json()).subscribe(user => this.user = user, () => this.user = null);
+  reload(): Promise<any> {
+    return this.http.get('/api/users/status').map(res => res.json()).toPromise().then(user => this.user = user, () => this.user = null);
   }
 }

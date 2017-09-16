@@ -38,18 +38,20 @@ router.post('/next', (req, res) => {
         let questionNumber = result.questions.length - 1;
         let question;
 
-        // If their previous question is still active (they haven't submitted), mark it as skipped
-        if (seen < tryout.questions.length &&
-            !(result.questions.length > 0 && result.questions[questionNumber].status === 'current'
-              && Date.now() <= result.questions[questionNumber].released + tryout.questions[questionNumber].time * 1000)) {
-          questionNumber++;
-          question = tryout.questions[questionNumber].question;
+        // Check if the current question is finished
+        if (!(questionNumber >= 0 && result.questions[questionNumber].status === 'current'
+            && Date.now() <= result.questions[questionNumber].released + tryout.questions[questionNumber].time * 1000)) {
+          // Check if there is another question
+          if (questionNumber++ < tryout.questions.length) {
+            question = tryout.questions[questionNumber].question;
 
-          // Mark that they've seen the question
-          result.questions.push({ question: question, released: new Date(), status: 'current' });
-        } else {
-          res.status(204).send();
-          return;
+            // Mark that they've seen the question
+            result.questions.push({question: question, released: new Date(), status: 'current'});
+          } else {
+            // Out of questions
+            res.status(204).send();
+            return;
+          }
         }
 
         result.save().then(() => res.send({
@@ -74,13 +76,13 @@ router.post('/skip', (req, res) => {
 
   activeTryout().then(tryout =>
     models.TryoutResults.findOne({ user: req.user })
-      // Access the user's tryout
       .then(result => {
         const question = result.questions[result.questions.length - 1];
+
         // If their previous question is still active (they haven't submitted), mark it as skipped
         if (result.questions.length > 0 && question.status === 'current') {
           question.status = 'skipped';
-          result.save().then(() => res.send({ }));
+          result.save().then(() => res.send());
         } else {
           res.status(409).send({ reason: 'question is not current' });
         }
@@ -101,12 +103,14 @@ router.post('/submit', (req, res) => {
       const questionNumber = result.questions.length - 1;
       const question = result.questions[questionNumber];
 
+      // Check if the allotted time has passed
       if (Date.now() >= question.time + tryout.questions[questionNumber].time * 1000) {
         question.status = 'skipped';
         result.save().then(() => res.status(409).send({ reason: 'time has expired' }));
         return;
       }
 
+      // Check if we're trying to submit on a non-current question
       if (question.status !== 'current') {
         res.status(409).send({ reason: 'question is not current' });
         return;
@@ -138,6 +142,7 @@ router.get('/results', (req, res) => {
       for (let result of results) {
         const scores = [];
 
+        // Add up the score for each subject
         for (let subject of game.SUBJECTS) {
           scores[subject] = results.questions.filter(question => question.status === 'correct').length * game.TRYOUT_CORRECT +
             results.questions.filter(question => question.status === 'correct').length * game.TRYOUT_INCORRECT;

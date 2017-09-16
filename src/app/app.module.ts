@@ -12,6 +12,7 @@ import { QuestionSearchComponent } from './question/question.search.component';
 import { QuestionViewComponent } from './question/question.view.component';
 import { TryoutComponent } from './tryout/tryout.component';
 import { UserLoginComponent } from './user/user.login.component';
+import { UserRegisterComponent } from './user/user.register.component';
 
 import { StatusService } from './status.service';
 
@@ -20,7 +21,8 @@ const appRoutes: Routes = [
   { path: 'question/search', component: QuestionSearchComponent },
   { path: 'question/:id', component: QuestionViewComponent },
   { path: 'tryout', component: TryoutComponent },
-  { path: 'user/login', component: UserLoginComponent }
+  { path: 'user/login', component: UserLoginComponent },
+  { path: 'user/register', component: UserRegisterComponent }
 ];
 
 @NgModule({
@@ -31,7 +33,8 @@ const appRoutes: Routes = [
     QuestionSearchComponent,
     QuestionViewComponent,
     TryoutComponent,
-    UserLoginComponent
+    UserLoginComponent,
+    UserRegisterComponent
   ],
   imports: [
     BrowserModule,

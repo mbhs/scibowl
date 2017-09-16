@@ -24,7 +24,8 @@ const userSchema = new Schema({
     last    : { type: Types.String, required: true },
   },
   email     : { type: Types.String, required: true },
-  role      : { type: Types.Number, default: 1 },  // TODO: validate
+  role      : { type: Types.Number, default: 1 },  // TODO: validate,
+  year      : { type: Types.Number, required: true }
 });
 
 /** Connect to the passport. */

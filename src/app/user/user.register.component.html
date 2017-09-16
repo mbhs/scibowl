@@ -1,0 +1,73 @@
+<h1>Register</h1>
+
+<form [formGroup]="registerForm" (submit)="submit()">
+  <div class="form-group row">
+    <label class="col-sm-2 col-form-label" for="username"><strong>Username</strong></label>
+    <div class="col-sm-10">
+      <input class="form-control" formControlName="username" id="username" placeholder="Username"
+             [class.is-valid]="registerForm.controls['username'].valid && registerForm.controls['username'].touched"
+             [class.is-invalid]="!registerForm.controls['username'].valid && registerForm.controls['username'].touched">
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label class="col-sm-2 col-form-label" for="password"><strong>Password</strong></label>
+    <div class="col-sm-10">
+      <input type="password" class="form-control" formControlName="password" id="password" placeholder="Password"
+             [class.is-valid]="registerForm.controls['password'].valid && registerForm.controls['password'].touched"
+             [class.is-invalid]="!registerForm.controls['password'].valid && registerForm.controls['password'].touched">
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label class="col-sm-2 col-form-label" for="email"><strong>Email</strong></label>
+    <div class="col-sm-10">
+      <input type="email" class="form-control" formControlName="email" id="email" placeholder="Email"
+             [class.is-valid]="registerForm.controls['email'].valid && registerForm.controls['email'].touched"
+             [class.is-invalid]="!registerForm.controls['email'].valid && registerForm.controls['email'].touched">
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label class="col-sm-2 col-form-label" for="password"><strong>First Name</strong></label>
+    <div class="col-sm-4">
+      <input type="text" class="form-control" formControlName="first_name" id="first_name" placeholder="First Name"
+             [class.is-valid]="registerForm.controls['first_name'].valid && registerForm.controls['first_name'].touched"
+             [class.is-invalid]="!registerForm.controls['first_name'].valid && registerForm.controls['first_name'].touched">
+    </div>
+    <label class="col-sm-2 col-form-label" for="password"><strong>Last Name</strong></label>
+    <div class="col-sm-4">
+      <input type="text" class="form-control" formControlName="last_name" id="last_name" placeholder="Last Name"
+             [class.is-valid]="registerForm.controls['last_name'].valid && registerForm.controls['last_name'].touched"
+             [class.is-invalid]="!registerForm.controls['last_name'].valid && registerForm.controls['last_name'].touched">
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <label class="col-sm-2"><strong>Year</strong></label>
+    <div class="col-sm-10">
+      <label class="custom-control custom-radio">
+        <input type="radio" class="custom-control-input" formControlName="year" value="9">
+        <span class="custom-control-indicator"></span>
+        <span class="custom-control-description">Freshman (9)</span>
+      </label>
+      <label class="custom-control custom-radio">
+        <input type="radio" class="custom-control-input" formControlName="year" value="10">
+        <span class="custom-control-indicator"></span>
+        <span class="custom-control-description">Sophomore (10)</span>
+      </label>
+      <label class="custom-control custom-radio">
+        <input type="radio" class="custom-control-input" formControlName="year" value="11">
+        <span class="custom-control-indicator"></span>
+        <span class="custom-control-description">Junior (11)</span>
+      </label>
+      <label class="custom-control custom-radio">
+        <input type="radio" class="custom-control-input" formControlName="year" value="12">
+        <span class="custom-control-indicator"></span>
+        <span class="custom-control-description">Senior (12)</span>
+      </label>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-success" [disabled]="!registerForm.valid">Register!</button>
+</form>
