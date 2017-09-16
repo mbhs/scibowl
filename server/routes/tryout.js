@@ -35,17 +35,19 @@ router.post('/next', (req, res) => {
       // Access the user's tryout, or create it if it doesn't exist
       .then(result => result ? result : models.TryoutResults.create({ user: req.user, questions : [] }))
       .then(result => {
-        const seen = result.questions.length;
+        let questionNumber = result.questions.length - 1;
         let question, time;
 
         // If their previous question is still active (they haven't submitted), mark it as skipped
-        if (result.questions.length > 0 && result.questions[seen - 1].status === 'current'
-          && Date.now() <= tryout.questions[seen - 1].time + result.questions[seen - 1].time ) {
-          question = tryout.questions[seen - 1].question;
-          time = result.questions[seen - 1].time;
+        if (result.questions.length > 0 && result.questions[questionNumber].status === 'current'
+          && Date.now() <= tryout.questions[questionNumber].time + result.questions[questionNumber].time ) {
+          question = tryout.questions[questionNumber].question;
+          time = result.questions[questionNumber].time;
         } else if (seen < tryout.questions.length) {
-          question = tryout.questions[seen].question;
+          questionNumber++;
+          question = tryout.questions[questionNumber].question;
           time = Date.now();
+
           // Mark that they've seen the question
           result.questions.push({ question: question, time: time, status: 'current' });
         } else {
@@ -58,7 +60,7 @@ router.post('/next', (req, res) => {
           choices: question.choices,
           subject: question.subject,
           time: time,
-          number: result.questions.length - 1
+          number: questionNumber
         }));
       })
   );
