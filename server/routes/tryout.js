@@ -36,20 +36,17 @@ router.post('/next', (req, res) => {
       .then(result => result ? result : models.TryoutResults.create({ user: req.user, questions : [] }))
       .then(result => {
         let questionNumber = result.questions.length - 1;
-        let question, time;
+        let question;
 
         // If their previous question is still active (they haven't submitted), mark it as skipped
-        if (result.questions.length > 0 && result.questions[questionNumber].status === 'current'
-          && Date.now() <= tryout.questions[questionNumber].time + result.questions[questionNumber].time ) {
-          question = tryout.questions[questionNumber].question;
-          time = result.questions[questionNumber].time;
-        } else if (seen < tryout.questions.length) {
+        if (seen < tryout.questions.length &&
+            !(result.questions.length > 0 && result.questions[questionNumber].status === 'current'
+              && Date.now() <= result.questions[questionNumber].released + tryout.questions[questionNumber].time * 1000)) {
           questionNumber++;
           question = tryout.questions[questionNumber].question;
-          time = Date.now();
 
           // Mark that they've seen the question
-          result.questions.push({ question: question, time: time, status: 'current' });
+          result.questions.push({ question: question, released: new Date(), status: 'current' });
         } else {
           res.status(204).send();
           return;
@@ -59,8 +56,9 @@ router.post('/next', (req, res) => {
           text: question.text,
           choices: question.choices,
           subject: question.subject,
-          time: time,
-          number: questionNumber
+          time: question.time,
+          number: questionNumber + 1,
+          released: result.questions[questionNumber].released
         }));
       })
   );
@@ -103,7 +101,7 @@ router.post('/submit', (req, res) => {
       const questionNumber = result.questions.length - 1;
       const question = result.questions[questionNumber];
 
-      if (Date > question.time + tryout.questions[questionNumber].time) {
+      if (Date.now() >= question.time + tryout.questions[questionNumber].time * 1000) {
         question.status = 'skipped';
         result.save().then(() => res.status(409).send({ reason: 'time has expired' }));
         return;

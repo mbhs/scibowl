@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
 
@@ -9,7 +9,7 @@ import { CHOICES } from '../game';
   selector: 'sb-tryout',
   templateUrl: './tryout.component.html'
 })
-export class TryoutComponent {
+export class TryoutComponent implements AfterViewInit {
   // Constants
   CHOICES = CHOICES;
 
@@ -19,16 +19,34 @@ export class TryoutComponent {
   stopped: Boolean = false;
   ended: Boolean = false;
 
-  question = {
-    number: 0,
-    text: 'Which of the following BEST describes the term static:',
-    subject: 'chem',
-    choices: { W: 'Stationary', X: 'Low', Y: 'Constant', Z: 'Used' },
-    time: 10.0
-  };
-  answerChoice = '';
+  question: any;
+  answerChoice: String = '';
+
+  current: number;
 
   constructor(private http: Http) { }
+
+  ngAfterViewInit() {
+    window.onload = () => this.startTimer();
+
+    if (document.readyState === 'complete') {
+      this.startTimer();
+    }
+  }
+
+  startTimer() {
+    window.setInterval(this.tick, 200);
+  }
+
+  tick() {
+    this.current = Date.now();
+
+    if (this.started && !this.ended && !this.stopped) {
+      if (this.current >= this.question.time + this.question.released) {
+        this.stopped = true;
+      }
+    }
+  }
 
   nextQuestion() {
     this.http.post('/api/tryout/next', { }).subscribe(res => {
@@ -37,6 +55,7 @@ export class TryoutComponent {
         this.stopped = false;
         this.question = res.json();
         this.answerChoice = '';
+        this.current = Date.now();
       } else if (res.status === 204) {
         this.ended = true;
       }

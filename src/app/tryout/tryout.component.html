@@ -40,6 +40,8 @@
       </label>
     </div>
 
+    <p><ngb-progressbar type="warning" [value]="question.time * 100" [striped]="true"></ngb-progressbar></p>
+
     <br/><br/>
     <button type="button" class="btn btn-success" (click)="submit()" [disabled]="stopped || !answerChoice">Submit <i class="fa fa-check"></i></button>
   </ng-container>

@@ -123,7 +123,7 @@ const Tryout = Round.discriminator('Tryout', tryoutSchema);
 const tryoutQuestionResultStatus = ['correct', 'incorrect', 'skipped', 'current'];
 const tryoutQuestionResultSchema = new Schema({
   question:   { type: Schema.Types.ObjectId, ref: 'MultipleChoiceQuestion', required: true },
-  time:       { type: Schema.Types.Date, required: true },
+  released:   { type: Schema.Types.Date, required: true },
   status:     { type: Schema.Types.String, enum: tryoutQuestionResultStatus }
 });
 
