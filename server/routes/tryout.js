@@ -34,7 +34,12 @@ router.post('/next', (req, res) => {
           const question = tryout.questions[result.questions.length];
           // Mark that they've seen the question
           result.questions.push({ question: question, time: Date.now(), status: 'current' });
-          result.save().then(() => res.send({ text: question.text, choices: question.choices }));
+          result.save().then(() => res.send({
+            text: question.text,
+            choices: question.choices,
+            subject: question.subject,
+            number: result.questions.length - 1
+          }));
         } else {
           res.send({ });
         }

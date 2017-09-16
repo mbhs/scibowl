@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
+import { Http } from '@angular/http';
+import 'rxjs/add/operator/map';
 
 import { CHOICES } from '../game';
 
@@ -26,10 +27,22 @@ export class TryoutComponent {
   };
   answerChoice = '';
 
+  constructor(private http: Http) { }
+
   nextQuestion() {
-    this.started = true;
-    this.stopped = false;
-    this.question.number += 1;
-    this.answerChoice = '';
+    this.http.post('/api/tryout/next', { }).map(res => res.json()).subscribe(question => {
+      this.started = true;
+      this.stopped = false;
+      this.question = question;
+      this.answerChoice = '';
+    });
+  }
+
+  skip() {
+    this.http.post('/api/tryout/skip', { }).subscribe(() => this.stopped = true);
+  }
+
+  submit() {
+    this.http.post('/api/tryout/submit', { answer: this.answerChoice }).subscribe(() => this.stopped = true);
   }
 }
