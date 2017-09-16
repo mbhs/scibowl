@@ -105,22 +105,16 @@ const roundSchema = new Schema({
 const Round = mongoose.model('Round', roundSchema);
 
 
-// Tracking
-const viewSchema = new Schema({
-  user          : { type: Types.ObjectId, ref: 'User', required: true },
-  question      : { type: Types.ObjectId, ref: 'Question', required: true },
-  answer        : {
-    correct     : { type: Types.Boolean, required: true },
-    interrupt   : { type: Types.Boolean, required: true }, },
-  time          : { type: Types.Date, default: Types.Date.now }
+// Tryouts
+const tryoutQuestionSchema = new Schema({
+  question   : { type: Types.ObjectId, ref: 'MultipleChoiceQuestion', required: true },
+  time       : { type: Types.Number, required: true }
 });
-const View = mongoose.model('View', viewSchema);
 
-
-// Tryout round
 const tryoutSchema = new Schema({
-  start   : { type: Types.Date, required: true },
-  end     : { type: Types.Date, required: true }
+  start        : { type: Types.Date, required: true },
+  end          : { type: Types.Date, required: true },
+  questions:   [ tryoutQuestionSchema ]
 });
 const Tryout = Round.discriminator('Tryout', tryoutSchema);
 

@@ -35,24 +35,31 @@ router.post('/next', (req, res) => {
       // Access the user's tryout, or create it if it doesn't exist
       .then(result => result ? result : models.TryoutResults.create({ user: req.user, questions : [] }))
       .then(result => {
-        // Todo: next question if current time has expired
+        const seen = result.questions.length;
+        let question, time;
+
         // If their previous question is still active (they haven't submitted), mark it as skipped
-        if (result.questions.length > 0 && result.questions[result.questions.length - 1].status === 'current') {
-          const question = tryout.questions[result.questions.length - 1];
-          res.send({ text: question.text, choices: question.choices });
-        } else if (result.questions.length < tryout.questions.length) {
-          const question = tryout.questions[result.questions.length];
+        if (result.questions.length > 0 && result.questions[seen - 1].status === 'current'
+          && Date.now() <= tryout.questions[seen - 1].time + result.questions[seen - 1].time ) {
+          question = tryout.questions[seen - 1].question;
+          time = result.questions[seen - 1].time;
+        } else if (seen < tryout.questions.length) {
+          question = tryout.questions[seen].question;
+          time = Date.now();
           // Mark that they've seen the question
-          result.questions.push({ question: question, time: Date.now(), status: 'current' });
-          result.save().then(() => res.send({
-            text: question.text,
-            choices: question.choices,
-            subject: question.subject,
-            number: result.questions.length - 1
-          }));
+          result.questions.push({ question: question, time: time, status: 'current' });
         } else {
           res.status(204).send();
+          return;
         }
+
+        result.save().then(() => res.send({
+          text: question.text,
+          choices: question.choices,
+          subject: question.subject,
+          time: time,
+          number: result.questions.length - 1
+        }));
       })
   );
 
@@ -69,9 +76,10 @@ router.post('/skip', (req, res) => {
     models.TryoutResults.findOne({ user: req.user })
       // Access the user's tryout
       .then(result => {
+        const question = result.questions[result.questions.length - 1];
         // If their previous question is still active (they haven't submitted), mark it as skipped
-        if (result.questions.length > 0 && result.questions[result.questions.length - 1].status === 'current') {
-          result.questions[result.questions.length - 1].status = 'skipped';
+        if (result.questions.length > 0 && question.status === 'current') {
+          question.status = 'skipped';
           result.save().then(() => res.send({ }));
         } else {
           res.status(409).send({ reason: 'question is not current' });
@@ -93,16 +101,21 @@ router.post('/submit', (req, res) => {
       const questionNumber = result.questions.length - 1;
       const question = result.questions[questionNumber];
 
-      // Todo: Check time
+      if (Date > question.time + tryout.questions[questionNumber].time) {
+        question.status = 'skipped';
+        result.save().then(() => res.status(409).send({ reason: 'time has expired' }));
+        return;
+      }
 
       if (question.status !== 'current') {
         res.status(409).send({ reason: 'question is not current' });
+        return;
       }
 
       if (req.body['answer'] === question.answer) {
-        result.questions[questionNumber].status = 'correct';
+        question.status = 'correct';
       } else {
-        result.questions[questionNumber].status = 'incorrect';
+        question.status = 'incorrect';
       }
 
       result.save().then(() => res.send({ }));

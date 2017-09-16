@@ -29,7 +29,7 @@ fs.readFile('tryout_questions.csv', (err, data) => {
     });
     question.save();
 
-    tryout.questions.push(question);
+    tryout.questions.push({ question: question, time: +entry[8] });
   }
 
   tryout.save().catch(err => console.log(err));
