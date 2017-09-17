@@ -110,12 +110,11 @@ const tryoutQuestionSchema = new Schema({
   question    : { type: Types.ObjectId, ref: "Question", required: true, },
   time        : { type: Types.Number, required: true }
 });
-const TryoutQuestion = mongoose.model('TryoutQuestion', tryoutQuestionSchema);
 
 const tryoutSchema = new Schema({
   start       : { type: Types.Date, required: true },
   end         : { type: Types.Date, required: true },
-  questions   : [ { type: Types.ObjectId, ref: "TryoutQuestion" } ]
+  questions   : [ tryoutQuestionSchema ]
 });
 const Tryout = Round.discriminator('Tryout', tryoutSchema);
 
@@ -134,8 +133,8 @@ const tryoutResultsSchema = new Schema({
   user:        { type: Schema.Types.ObjectId, ref: 'User', required: true },
   questions:   { type: [ tryoutQuestionResultSchema ], default: [] },
 });
-tryoutResultsSchema.methods.questionCount = function() { return this.questions.length; };
-tryoutResultsSchema.methods.currentQuestion = function() { return this.questions[this.questions.length - 1]; };
+tryoutResultsSchema.methods.questionCount = () => this.questions.length;
+tryoutResultsSchema.methods.currentQuestion = () => this.questions[this.questions.length - 1];
 const TryoutResults = mongoose.model('TryoutResults', tryoutResultsSchema);
 
 
@@ -147,6 +146,5 @@ module.exports = {
   ShortAnswerQuestion: ShortAnswerQuestion,
   Round: Round,
   Tryout: Tryout,
-  TryoutQuestion: TryoutQuestion,
   TryoutResults: TryoutResults,
 };

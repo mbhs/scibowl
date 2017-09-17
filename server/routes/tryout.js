@@ -77,7 +77,7 @@ router.post('/next', middleware.assertUserAuthenticated, assertHasTryoutResult, 
 
           // Get next question and push it to tryout results
           nextQuestion = tryout.questions[currentIndex + 1].question;
-          tryoutResult.questions.push({question: nextQuestion, released: new Date(), status: 'current'});
+          tryoutResult.questions.push({ question: nextQuestion, released: new Date(), status: 'current' });
 
         // No more questions
         } else {
@@ -115,7 +115,7 @@ router.post('/skip', (req, res) => {
         currentQuestion.status = 'skipped';
         tryoutResult.save().then(() => { res.send({}); });
       } else {
-        res.status(409).send({reason: 'question is not current'});
+        res.status(409).send({ reason: 'question is not current' });
       }
 
     })
