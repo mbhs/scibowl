@@ -33,4 +33,9 @@ module.exports.email = function(email) {
   return email;
 };
 
+module.exports.year = function(year) {
+  if (!year instanceof Number) throw new Error("Must be numeric");
+  return year;
+};
+
 module.exports.Error = Error;

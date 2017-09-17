@@ -75,6 +75,12 @@ multipleChoiceQuestionSchema.methods.update = function(data) {
   this.answer = data['answer'] || this.answer;
 };
 
+multipleChoiceQuestionSchema.methods.choicesMap = function() {
+  const choicesMap = {};
+  for (let choicePair of this.choices) { choicesMap[choicePair.choice] = choicePair.text; }
+  return choicesMap;
+};
+
 const MultipleChoiceQuestion = Question.discriminator('MultipleChoiceQuestion', multipleChoiceQuestionSchema);
 
 
@@ -116,8 +122,8 @@ const tryoutSchema = new Schema({
   end         : { type: Types.Date, required: true },
   questions   : [ tryoutQuestionSchema ]
 });
-const Tryout = Round.discriminator('Tryout', tryoutSchema);
-
+// const Tryout = Round.discriminator('Tryout', tryoutSchema);
+const Tryout = mongoose.model('Tryout', tryoutSchema);
 
 // Tryout question result
 const tryoutQuestionResultStatus = ['correct', 'incorrect', 'skipped', 'current'];
@@ -129,12 +135,12 @@ const tryoutQuestionResultSchema = new Schema({
 
 // Tryout round result
 const tryoutResultsSchema = new Schema({
-  tryout:      { type: Schema.Types.ObjectId, ref: 'Tryout', required: true },
-  user:        { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  questions:   { type: [ tryoutQuestionResultSchema ], default: [] },
+  tryout:    { type: Schema.Types.ObjectId, ref: 'Tryout', required: true },
+  user:      { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  results:   { type: [ tryoutQuestionResultSchema ], default: [] },
 });
-tryoutResultsSchema.methods.questionCount = () => this.questions.length;
-tryoutResultsSchema.methods.currentQuestion = () => this.questions[this.questions.length - 1];
+tryoutResultsSchema.methods.resultCount = function() { return this.results.length };
+tryoutResultsSchema.methods.currentResult = function() { return this.results[this.results.length - 1] };
 const TryoutResults = mongoose.model('TryoutResults', tryoutResultsSchema);
 
 

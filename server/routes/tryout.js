@@ -19,15 +19,15 @@ function getCurrentTryout() {
   return models.Tryout.findOne()
     .where('start').lt(Date.now())
     .where('end').gt(Date.now())
-    .populate('questions');
+    .populate('questions.question');
 }
 
 
 /** Middleware that asserts there is a tryout and that the user has a tryout results model. */
 function assertHasTryoutResult(req, res, next) {
-  getCurrentTryout().then((tryout) => {
+  getCurrentTryout().then(tryout => {
     if (!tryout) { res.status(204).send({ reason: "no active tryout" }); return; }  // TODO: find status code
-    models.TryoutResults.findOne({ user: req.user, tryout: tryout }).then((tryoutResults) => {
+    models.TryoutResults.findOne({ user: req.user, tryout: tryout }).then(tryoutResults => {
       if (!tryoutResults) models.TryoutResults.create({ user: req.user, tryout: tryout }).then(() => {
         console.log("Created new tryout model!");
         next();
@@ -56,28 +56,24 @@ router.get('/active', (req, res) => {
  * determined and sent.
  */
 router.post('/next', middleware.assertUserAuthenticated, assertHasTryoutResult, (req, res) => {
-  getCurrentTryout().then((tryout) =>
+  getCurrentTryout().then(tryout =>
 
-    models.TryoutResults.findOne({ user: req.user, tryout: tryout }).then((tryoutResult) => {
+    models.TryoutResults.findOne({ user: req.user, tryout: tryout }).then(tryoutResult => {
 
       // Get the next question number
-      let questionCount = tryoutResult.questionCount();
+      let questionCount = tryoutResult.resultCount();
       let currentIndex = questionCount - 1;
-      let currentQuestion = tryoutResult.currentQuestion();
-      let currentAllowedTime = currentQuestion.time * 1000;
-      let nextQuestion;
+      let currentResult = tryoutResult.currentResult();
 
       // Move to the next question if any of the following conditions are true
       if (questionCount === 0 ||  // This is the first question being accessed
-          currentQuestion.status !== 'current' ||  // The current question is marked as current
-          Date.now() > currentQuestion.released + currentAllowedTime) {  // Out of time
+          currentResult.status !== 'current') {
 
         // Check if there is another question
         if (currentIndex + 1 < tryout.questions.length) {
 
           // Get next question and push it to tryout results
-          nextQuestion = tryout.questions[currentIndex + 1].question;
-          tryoutResult.questions.push({ question: nextQuestion, released: new Date(), status: 'current' });
+          tryoutResult.results.push({ question: tryout.questions[++currentIndex].question, released: new Date(), status: 'current' });
 
         // No more questions
         } else {
@@ -87,14 +83,16 @@ router.post('/next', middleware.assertUserAuthenticated, assertHasTryoutResult, 
 
       }
 
+      const currentQuestion = tryout.questions[currentIndex];
+
       // Save and send the question to the user
       tryoutResult.save().then(() => res.send({
-        text: nextQuestion.text,
-        choices: nextQuestion.choices,
-        subject: nextQuestion.subject,
-        time: nextQuestion.time,
+        text: currentQuestion.question.text,
+        choices: currentQuestion.question.choicesMap(),
+        subject: currentQuestion.question.subject,
+        time: currentQuestion.time,
         number: currentIndex + 1,
-        released: tryoutResult.questions[index].released
+        released: tryoutResult.currentResult().released
       }));
 
     })
@@ -108,11 +106,11 @@ router.post('/skip', (req, res) => {
     models.TryoutResults.findOne({ user: req.user, tryout: tryout }).then((tryoutResult) => {
 
       // Get the question
-      let currentQuestion = tryoutResult.currentQuestion();
+      let currentResult = tryoutResult.currentResult();
 
-      // Skip and send 200 or fail because there are no questions
-      if (tryoutResult.questions.length > 0 && currentQuestion.status === 'current') {
-        currentQuestion.status = 'skipped';
+      // Skip and send OK or fail because there are no questions
+      if (tryoutResult.resultCount() > 0 && currentResult.status === 'current') {
+        currentResult.status = 'skipped';
         tryoutResult.save().then(() => { res.send({}); });
       } else {
         res.status(409).send({ reason: 'question is not current' });
@@ -126,26 +124,26 @@ router.post('/skip', (req, res) => {
 /** Submit the answer to the current question. */
 router.post('/submit', middleware.assertUserAuthenticated, (req, res) => {
   getCurrentTryout().then((tryout) => {
-    models.TryoutResults.findOne({ user: req.user, tryout: tryout }).then((tryoutResult) => {
+    models.TryoutResults.findOne({ user: req.user, tryout: tryout }).populate('results.question').then((tryoutResult) => {
 
-      let currentQuestion = tryoutResult.currentQuestion();
+      let currentResult = tryoutResult.currentResult();
 
       // Check if the allotted time has passed
-      if (Date.now() > currentQuestion.released + currentQuestion.time * 1000) {
-        currentQuestion.status = 'skipped';
+      if (Date.now() > currentResult.released.getTime() + currentResult.question.time * 1000) {
+        currentResult.status = 'skipped';
         tryoutResult.save().then(() => res.status(409).send({ reason: 'time has expired' }));
         return;
       }
 
       // Check if we're trying to submit on a non-current question
-      if (currentQuestion.status !== 'current') {
+      if (currentResult.status !== 'current') {
         res.status(409).send({ reason: 'question is not current' });
         return;
       }
 
       // Check if the answer is correct and save
-      if (req.body['answer'] === currentQuestion.answer) currentQuestion.status = 'correct';
-      else currentQuestion.status = 'incorrect';
+      if (req.body['answer'] === currentResult.question.answer) currentResult.status = 'correct';
+      else currentResult.status = 'incorrect';
       tryoutResult.save().then(() => res.send({}));
 
     })
@@ -155,31 +153,34 @@ router.post('/submit', middleware.assertUserAuthenticated, (req, res) => {
 
 /** Get the results from all users */
 router.get('/results', middleware.assertUserAuthenticated, (req, res) => {
-  getCurrentTryout().then((tryout) => {
-    models.TryoutResults.find({ tryout: tryout }).then((tryoutResults) => {
+  models.TryoutResults.find({ }).populate('results.question').then(tryoutResults => {
 
-      // Loop through scores
-      const participated = {};
-      for (let result of tryoutResults) {
-        const scores = [];
+    // Loop through scores
+    const participated = [];
+    for (let result of tryoutResults) {
+      const scores = {};
+      let score = 0;
 
-        // Add up the score for each subject
-        for (let subject of game.SUBJECTS) {
-          scores[subject] = tryoutResults.questions.filter(question => question.status === 'correct').length * game.TRYOUT_CORRECT +
-            tryoutResults.questions.filter(question => question.status === 'correct').length * game.TRYOUT_INCORRECT;
-        }
-
-        participated.push({
-          start: result.tryout.start,
-          end: result.tryout.end,
-          scores: scores
-        });
+      // Add up the score for each subject
+      for (let subject of game.SUBJECTS) {
+        let subjectResults = result.results.filter(result => result.question.subject === subject);
+        let subjectScore = subjectResults.filter(result => result.status === 'correct').length * game.TRYOUT_CORRECT +
+          subjectResults.filter(question => question.status === 'incorrect').length * game.TRYOUT_INCORRECT;
+        scores[subject] = subjectScore;
+        score += subjectScore;
       }
 
-      // Send
-      res.send(participated);
+      participated.push({
+        start: result.tryout.start,
+        end: result.tryout.end,
+        scores: scores,
+        score: score
+      });
+    }
 
-    });
+    // Send
+    res.send(participated);
+
   });
 });
 

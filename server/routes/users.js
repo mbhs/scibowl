@@ -18,6 +18,7 @@ router.post('/register', (req, res) => {
     firstName = validate.name(req.body['name']['first']);
     lastName = validate.name(req.body['name']['last']);
     email = validate.email(req.body['email']);
+    year = validate.year(req.body['year']);
   } catch (err) {
     if (err instanceof validate.Error) {
       res.status(400).send({reason: err});
@@ -44,6 +45,7 @@ router.post('/register', (req, res) => {
       password: password,
       name: { first: firstName, last: lastName },
       email: email,
+      year: year
     });
 
     /* Register the user and set password. */

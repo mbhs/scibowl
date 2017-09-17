@@ -2,20 +2,20 @@
   <h1>Science Bowl Tryouts</h1>
 
   <ng-container *ngIf="!started">
-    <p>Welcome to the online tryouts for the Montgomery Blair High School Science Bowl Team! The following questions are designed to test your knowledge of the six Science Bowl subjects: physics, mathematics, chemistry, biology, earth and space science, and energy. All questions are multiple choice and have strict time limits ranging from 10 to 45 seconds. There are 50 questions, and overall, we estimate that the test will require less than half an hour.</p>
+    <p>Welcome to the online tryouts for the Montgomery Blair High School Science Bowl Team! The following questions are designed to test your knowledge of the six Science Bowl subjects: physics, mathematics, chemistry, biology, earth and space science, and energy. All questions are multiple choice, with four choices, and have strict time limits ranging from 10 to 45 seconds. There are 50 questions, and overall, we estimate that the test will require less than half an hour.</p>
 
     <h3>Scoring</h3>
 
-    <p>One (1) point will be awarded for all correct answers. Zero (0) points are awarded for unanswered questions (either skipped or time expired). In Science Bowl competition, reckless guessing has the potential to hurt teams by taking away scoring opportunities and possibly giving up an interrupt penalty. Therefore, in order to discourage guessing, three quarters (0.75) of a point will be subtracted for all incorrect answers.</p>
+    <p>One (1) point will be awarded for all correct answers. Zero (0) points are awarded for unanswered questions (either skipped or time expired). In Science Bowl competition, reckless guessing has the potential to hurt teams by taking away scoring opportunities and possibly giving up an interrupt penalty. Therefore, in order to discourage guessing, three quarters (0.75) of a point will be subtracted for all incorrect answers. Note that it is still advantageous to guess if the possibilities are reduced to two out of four answer choices.</p>
 
     <h3>Integrity</h3>
 
-    <p>The captains have worked tirelessly to produce this tryout and these questions. During the tryout, you can only consult your own knowledge of the subjects! Any violation of the integrity of this tryout will be reported to appropriate school authorities. Violations include, but are not limited to, consulting any reference source (including textbooks or notes), searching the Internet, or using a calculator. Additionally, no discussion of the contents of the tryout are permitted with anyone else (besides a captain) until the tryout window ends.</p>
+    <p>The captains have worked tirelessly to produce this tryout and these questions. During the tryout, you can only consult your own knowledge of the subjects! Any violation of the integrity of this tryout will be reported to appropriate school authorities. Violations include, but are not limited to, consulting any reference source (including textbooks or notes), searching the Internet, talking to another person, or using a calculator. No students is authorized to take the tryout more than once per year. No discussion of the contents of the tryout is permitted (except with a captain) until the tryout window ends.</p>
 
     <label class="custom-control custom-checkbox">
       <input type="checkbox" class="custom-control-input" [(ngModel)]="agreed">
       <span class="custom-control-indicator"></span>
-      <span class="custom-control-description">I agree to respect the integrity of this tryout by not using any outside reference sources and by not discussing the content of this tryout with anyone else until the tryout window ends.</span>
+      <span class="custom-control-description">I agree to respect the integrity of this tryout by not using any outside reference sources and by not discussing the content of this tryout with anyone else until the tryout window ends. I certify that this is the only time I am taking this tryout this year and have had no advance knowledge of the content of this tryout.</span>
     </label>
 
     <p>Time begins when you press the start button. If you have any questions before, during, or after the tryout, <a href="mailto:mbhs.sciencebowl@gmail.com">email us</a>. Good luck, have fun, and thanks for trying out!</p>
@@ -25,25 +25,29 @@
 
   <ng-container *ngIf="started && !ended">
     <div class="clearfix">
-      <h3 class="float-sm-left">Question {{ question.number }}</h3>
+      <h3 class="float-sm-left">Question {{ question.number }} <label [ngClass]="['subject-' + question.subject]"></label></h3>
       <button type="button" class="btn btn-primary float-sm-right" (click)="nextQuestion()" *ngIf="stopped">Next question <i class="fa fa-arrow-right"></i></button>
-      <button type="button" class="btn btn-info float-sm-right" (click)="skip()" *ngIf="!stopped">Skip <i class="fa fa-times"></i></button>
     </div>
 
-    <p>{{ question.text }}</p>
+    <p>{{ SUBJECT_DISPLAY[question.subject] }}: {{ question.text }}</p>
 
     <div class="custom-controls-stacked">
       <label class="custom-control custom-radio" *ngFor="let choice of CHOICES;">
-        <input type="radio" class="custom-control-input" [(ngModel)]="answerChoice" [value]="choice" [disabled]="stopped">
+        <input type="radio" class="custom-control-input" [(ngModel)]="answerChoice" [value]="choice" [disabled]="!answerable">
         <span class="custom-control-indicator"></span>
         <span class="custom-control-description">{{ choice }}) {{ question.choices[choice] }}</span>
       </label>
     </div>
 
-    <p><ngb-progressbar type="warning" [value]="question.time * 100" [striped]="true"></ngb-progressbar></p>
+    <br/><br/>
+    <p><ngb-progressbar [type]="timeFraction >= 1 ? 'danger' : 'warning'" [striped]="true"
+                        [value]="timeFraction * 100"></ngb-progressbar></p>
 
     <br/><br/>
-    <button type="button" class="btn btn-success" (click)="submit()" [disabled]="stopped || !answerChoice">Submit <i class="fa fa-check"></i></button>
+    <div class="clearfix">
+      <button type="button" class="btn btn-success float-sm-left" (click)="submit()" [disabled]="!answerable || !answerChoice">Submit <i class="fa fa-check"></i></button>
+      <button type="button" class="btn btn-info float-sm-right" (click)="skip()" [disabled]="stopped">Skip <i class="fa fa-times"></i></button>
+    </div>
   </ng-container>
 
   <ng-container *ngIf="ended">
