@@ -93,7 +93,6 @@ shortAnswerQuestionSchema.methods.update = function(data) {
   this.text = data['text'] || this.text;
   this.answer = data['answer'] || this.answer;
 };
-
 const ShortAnswerQuestion = Question.discriminator('ShortAnswerQuestion', shortAnswerQuestionSchema);
 
 
@@ -101,21 +100,22 @@ const ShortAnswerQuestion = Question.discriminator('ShortAnswerQuestion', shortA
 const roundSchema = new Schema({
   owner        : { type: Types.ObjectId, ref: 'User' },
   questions    : [{ type: Types.ObjectId, ref: 'Question', required: true }],
-  permission   : { type: Types.Number, enum: game.PERMISSIONS, required: true, default: 1 }
+  visibility   : { type: Types.Number, enum: game.VISIBILITY, required: true, default: 1 }
 }, { discriminatorKey: 'kind '});
 const Round = mongoose.model('Round', roundSchema);
 
 
 // Tryouts
 const tryoutQuestionSchema = new Schema({
-  question   : { type: Types.ObjectId, ref: 'MultipleChoiceQuestion', required: true },
-  time       : { type: Types.Number, required: true }
+  question    : { type: Types.ObjectId, ref: "Question", required: true, },
+  time        : { type: Types.Number, required: true }
 });
+const TryoutQuestion = mongoose.model('TryoutQuestion', tryoutQuestionSchema);
 
 const tryoutSchema = new Schema({
-  start        : { type: Types.Date, required: true },
-  end          : { type: Types.Date, required: true },
-  questions:   [ tryoutQuestionSchema ]
+  start       : { type: Types.Date, required: true },
+  end         : { type: Types.Date, required: true },
+  questions   : [ { type: Types.ObjectId, ref: "TryoutQuestion" } ]
 });
 const Tryout = Round.discriminator('Tryout', tryoutSchema);
 
@@ -128,13 +128,14 @@ const tryoutQuestionResultSchema = new Schema({
   status:     { type: Schema.Types.String, enum: tryoutQuestionResultStatus }
 });
 
-
 // Tryout round result
 const tryoutResultsSchema = new Schema({
   tryout:      { type: Schema.Types.ObjectId, ref: 'Tryout', required: true },
   user:        { type: Schema.Types.ObjectId, ref: 'User', required: true },
   questions:   { type: [ tryoutQuestionResultSchema ], default: [] },
 });
+tryoutResultsSchema.methods.questionCount = function() { return this.questions.length; };
+tryoutResultsSchema.methods.currentQuestion = function() { return this.questions[this.questions.length - 1]; };
 const TryoutResults = mongoose.model('TryoutResults', tryoutResultsSchema);
 
 
@@ -146,5 +147,6 @@ module.exports = {
   ShortAnswerQuestion: ShortAnswerQuestion,
   Round: Round,
   Tryout: Tryout,
-  TryoutResults: TryoutResults
+  TryoutQuestion: TryoutQuestion,
+  TryoutResults: TryoutResults,
 };
