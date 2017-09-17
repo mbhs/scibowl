@@ -2,7 +2,9 @@
   <h1>Science Bowl Tryouts</h1>
 
   <ng-container *ngIf="!started">
-    <p>Welcome to the online tryouts for the Montgomery Blair High School Science Bowl Team! The following questions are designed to test your knowledge of the six Science Bowl subjects: physics, mathematics, chemistry, biology, earth and space science, and energy. All questions are multiple choice, with four choices, and have strict time limits ranging from 10 to 45 seconds. There are 50 questions, and overall, we estimate that the test will require less than half an hour.</p>
+    <p><strong>Make sure to read the following rules in order to achieve success on the tryouts.</strong></p>
+
+    <p>Welcome to the online tryouts for the Montgomery Blair High School Science Bowl Team! The following questions are designed to test your knowledge of the six Science Bowl subjects: physics, mathematics, chemistry, biology, earth and space science, and energy. All questions are multiple choice, with four choices, and have strict time limits ranging from 10 to 45 seconds. <strong>If your answer choice is not submitted when time runs out for a question, it is not recorded and you may no longer answer that question.</strong> However, once an answer choice has been submitted, it is final and can no longer be changed. There are 50 questions, and overall, we estimate that the test will require less than half an hour.</p>
 
     <h3>Scoring</h3>
 
@@ -10,7 +12,7 @@
 
     <h3>Integrity</h3>
 
-    <p>The captains have worked tirelessly to produce this tryout and these questions. During the tryout, you can only consult your own knowledge of the subjects! Any violation of the integrity of this tryout will be reported to appropriate school authorities. Violations include, but are not limited to, consulting any reference source (including textbooks or notes), searching the Internet, talking to another person, or using a calculator. No students is authorized to take the tryout more than once per year. No discussion of the contents of the tryout is permitted (except with a captain) until the tryout window ends.</p>
+    <p>The captains have worked tirelessly to produce this tryout and these questions. <strong>During the tryout, you can only consult your own knowledge of the subjects!</strong> Any violation of the integrity of this tryout will be reported to appropriate school authorities. Violations include, but are not limited to, consulting any reference source (including textbooks or notes), searching the Internet, talking to another person, or using a calculator. No students is authorized to take the tryout more than once per year. No discussion of the contents of the tryout is permitted (except with a captain) until the tryout window ends.</p>
 
     <label class="custom-control custom-checkbox">
       <input type="checkbox" class="custom-control-input" [(ngModel)]="agreed">
@@ -26,7 +28,7 @@
   <ng-container *ngIf="started && !ended">
     <div class="clearfix">
       <h3 class="float-sm-left">Question {{ question.number }} <label [ngClass]="['subject-' + question.subject]"></label></h3>
-      <button type="button" class="btn btn-primary float-sm-right" (click)="nextQuestion()" *ngIf="stopped">Next question <i class="fa fa-arrow-right"></i></button>
+      <button type="button" class="btn btn-primary btn-lg float-sm-right" (click)="nextQuestion()" *ngIf="stopped">Next question <i class="fa fa-arrow-right"></i></button>
     </div>
 
     <p>{{ SUBJECT_DISPLAY[question.subject] }}: {{ question.text }}</p>
@@ -45,8 +47,8 @@
 
     <br/><br/>
     <div class="clearfix">
-      <button type="button" class="btn btn-success float-sm-left" (click)="submit()" [disabled]="!answerable || !answerChoice">Submit <i class="fa fa-check"></i></button>
-      <button type="button" class="btn btn-info float-sm-right" (click)="skip()" [disabled]="stopped">Skip <i class="fa fa-times"></i></button>
+      <button type="button" class="btn btn-success btn-lg float-sm-left" (click)="submit()" [disabled]="!answerable || !answerChoice">Submit <i class="fa fa-check"></i></button>
+      <button type="button" class="btn btn-danger btn-lg float-sm-right" (click)="skip()" [disabled]="stopped">Skip <i class="fa fa-times"></i></button>
     </div>
   </ng-container>
 
