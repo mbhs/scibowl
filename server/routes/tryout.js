@@ -17,8 +17,8 @@ const router = express.Router();
  */
 function getCurrentTryout() {
   return models.Tryout.findOne()
-    .where('start').lt(Date.now())
-    .where('end').gt(Date.now())
+    .where('start').lt(new Date())
+    .where('end').gt(new Date())
     .populate('questions.question');
 }
 
@@ -153,7 +153,7 @@ router.post('/submit', middleware.assertUserAuthenticated, (req, res) => {
 
 /** Get the results from all users */
 router.get('/results', middleware.assertUserAuthenticated, (req, res) => {
-  models.TryoutResults.find({ }).populate('results.question').then(tryoutResults => {
+  models.TryoutResults.find({ }).where('end').lt(new Date()).populate('results.question').then(tryoutResults => {
 
     // Loop through scores
     const participated = [];
