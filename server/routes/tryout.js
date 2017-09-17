@@ -23,9 +23,10 @@ function getCurrentTryout() {
 }
 
 
-/** Middleware that asserts the user has a tryout results model. */
+/** Middleware that asserts there is a tryout and that the user has a tryout results model. */
 function assertHasTryoutResult(req, res, next) {
   getCurrentTryout().then((tryout) => {
+    if (!tryout) { res.status(204).send({ reason: "no active tryout" }); return; }  // TODO: find status code
     models.TryoutResults.findOne({ user: req.user, tryout: tryout }).then((tryoutResults) => {
       if (!tryoutResults) models.TryoutResults.create({ user: req.user, tryout: tryout }).then(() => {
         console.log("Created new tryout model!");
@@ -55,7 +56,8 @@ router.get('/active', (req, res) => {
  * determined and sent.
  */
 router.post('/next', middleware.assertUserAuthenticated, assertHasTryoutResult, (req, res) => {
-  getCurrentTryout().then(tryout =>
+  getCurrentTryout().then((tryout) =>
+
     models.TryoutResults.findOne({ user: req.user, tryout: tryout }).then((tryoutResult) => {
 
       // Get the next question number
