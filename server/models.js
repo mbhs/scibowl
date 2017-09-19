@@ -8,7 +8,7 @@ const Types = Schema.Types;
 const game = require('./game');
 const validate = require('./validate');
 
-const roles = { user: 1, staff: 2, superuser: 3 };
+const roles = { user: 1, player: 2, captain: 3 };
 
 
 /** Defines a user class for use throughout the site.
@@ -24,7 +24,7 @@ const userSchema = new Schema({
     last    : { type: Types.String, required: true },
   },
   email     : { type: Types.String, required: true },
-  role      : { type: Types.Number, default: 1 },  // TODO: validate,
+  role      : { type: Types.Number, default: 1, min: roles.user, max: roles.captain },
   year      : { type: Types.Number, required: true }
 });
 
@@ -141,6 +141,19 @@ const tryoutResultsSchema = new Schema({
 });
 tryoutResultsSchema.methods.resultCount = function() { return this.results.length };
 tryoutResultsSchema.methods.currentResult = function() { return this.results[this.results.length - 1] };
+tryoutResultsSchema.methods.score = function() {
+  const scores = { total : { score: 0, answered: 0 } };
+  // Add up the score for each subject
+  for (let subject of game.SUBJECTS) {
+    const subjectResults = this.results.filter(result => result.question.subject === subject && result.status !== 'skipped');
+    let subjectScore = subjectResults.filter(result => result.status === 'correct').length * game.TRYOUT_CORRECT +
+      subjectResults.filter(question => question.status === 'incorrect').length * game.TRYOUT_INCORRECT;
+    scores[subject] = { score: subjectScore, answered: subjectResults.length };
+    scores.total.score += subjectScore;
+    scores.total.answered += subjectResults.length;
+  }
+  return scores;
+};
 const TryoutResults = mongoose.model('TryoutResults', tryoutResultsSchema);
 
 

@@ -31,10 +31,10 @@
       <button type="button" class="btn btn-primary btn-lg float-sm-right" (click)="nextQuestion()" *ngIf="stopped">Next question <i class="fa fa-arrow-right"></i></button>
     </div>
 
-    <p>{{ SUBJECT_DISPLAY[question.subject] }}: {{ question.text }}</p>
+    <p>{{ config.SUBJECT_DISPLAY[question.subject] }}: {{ question.text }}</p>
 
     <div class="custom-controls-stacked">
-      <label class="custom-control custom-radio" *ngFor="let choice of CHOICES;">
+      <label class="custom-control custom-radio" *ngFor="let choice of config.CHOICES;">
         <input type="radio" class="custom-control-input" [(ngModel)]="answerChoice" [value]="choice" [disabled]="!answerable">
         <span class="custom-control-indicator"></span>
         <span class="custom-control-description">{{ choice }}) {{ question.choices[choice] }}</span>

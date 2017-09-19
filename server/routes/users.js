@@ -11,7 +11,7 @@ const router = express.Router();
 router.post('/register', (req, res) => {
 
   /* Validate submitted credentials and information. */
-  let username, password, firstName, lastName, email;
+  let username, password, firstName, lastName, email, year;
   try {
     username = validate.username(req.body['username']);
     password = validate.password(req.body['password']);
@@ -112,7 +112,8 @@ router.get('/status', (req, res) => {
     name: {
       first: req.user.name.first,
       last: req.user.name.last
-    }
+    },
+    role: req.user.role
   });
   else res.status(401).send({});
 

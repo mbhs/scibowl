@@ -4,24 +4,19 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
 
-import { CHOICES, SUBJECTS, SUBJECT_DISPLAY, TYPE_DISPLAY } from '../game';
+import { Config } from '../config.service';
 
 @Component({
   selector: 'sb-question-view',
   templateUrl: './question.view.component.html'
 })
 export class QuestionViewComponent implements OnInit {
-  DEFAULT_CHOICES = {W: 'Mitochondrion', X: 'Endoplasmic reticulum', Y: 'Nucleus', Z: 'Golgi apparatus'};
-  CHOICES = CHOICES;
-  SUBJECTS = SUBJECTS;
-  SUBJECT_DISPLAY = SUBJECT_DISPLAY;
-  TYPE_DISPLAY = TYPE_DISPLAY;
-
   questionForm: FormGroup;
   editing: Boolean = false;
   new_question: Boolean = false;
 
-  constructor(private fb: FormBuilder, private router: Router, private route: ActivatedRoute, private http: Http) {
+  constructor(private fb: FormBuilder, private router: Router, private route: ActivatedRoute, private http: Http,
+              public config: Config) {
     const controls = {
       text: ['', Validators.required],
       subject: ['', Validators.required],
@@ -30,7 +25,7 @@ export class QuestionViewComponent implements OnInit {
       shortAnswer: ['']
     };
 
-    for (const choice of CHOICES) {
+    for (const choice of config.CHOICES) {
       controls['choice' + choice] = [''];
     }
 
@@ -68,7 +63,7 @@ export class QuestionViewComponent implements OnInit {
 
     if (this.questionForm.controls['type'].value === 'MultipleChoice') {
       data['choices'] = [];
-      for (const choice of CHOICES) {
+      for (const choice of this.config.CHOICES) {
         data['choices'].push({ choice: choice, text: this.questionForm.controls['choice' + choice].value });
       }
       data['answer'] = this.questionForm.controls['choiceAnswer'].value;

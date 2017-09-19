@@ -2,7 +2,7 @@ import { Component, AfterViewInit } from '@angular/core';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
 
-import { CHOICES, SUBJECT_DISPLAY } from '../game';
+import { Config } from '../config.service';
 
 
 @Component({
@@ -10,10 +10,6 @@ import { CHOICES, SUBJECT_DISPLAY } from '../game';
   templateUrl: './tryout.component.html'
 })
 export class TryoutComponent implements AfterViewInit {
-  // Constants
-  CHOICES = CHOICES;
-  SUBJECT_DISPLAY = SUBJECT_DISPLAY;
-
   // Whether the user has agreed to the conditions
   agreed: Boolean = false;
   // Whether the tryout has started
@@ -33,7 +29,7 @@ export class TryoutComponent implements AfterViewInit {
   // Current fraction of the progress bar that should be shaded
   timeFraction: number;
 
-  constructor(private http: Http) { }
+  constructor(private http: Http, public config: Config) { }
 
   ngAfterViewInit() {
     // Setup timer to continuously update question time
@@ -57,6 +53,7 @@ export class TryoutComponent implements AfterViewInit {
 
       // Make the question unanswerable when the time elapses
       if (this.timeFraction >= 1) {
+        this.timeFraction = 1;
         this.answerable = false;
       }
     }

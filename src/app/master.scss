@@ -42,3 +42,8 @@ input[type=checkbox].subject-button {
     cursor: pointer;
   }
 }
+
+// Necessary for timer bars in tryouts
+.progress-bar {
+  transition: width .1s;
+}

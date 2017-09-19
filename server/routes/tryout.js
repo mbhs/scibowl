@@ -1,9 +1,7 @@
 const express = require('express');
-const passport = require('passport');
 const console = require('console');
 
 const models = require('../models');
-const game = require('../game');
 const middleware = require('./middleware');
 
 const router = express.Router();
@@ -147,39 +145,6 @@ router.post('/submit', middleware.assertUserAuthenticated, (req, res) => {
       tryoutResult.save().then(() => res.send({}));
 
     })
-
-  });
-});
-
-/** Get the results from all users */
-router.get('/results', middleware.assertUserAuthenticated, (req, res) => {
-  models.TryoutResults.find({ }).where('end').lt(new Date()).populate('results.question').then(tryoutResults => {
-
-    // Loop through scores
-    const participated = [];
-    for (let result of tryoutResults) {
-      const scores = {};
-      let score = 0;
-
-      // Add up the score for each subject
-      for (let subject of game.SUBJECTS) {
-        let subjectResults = result.results.filter(result => result.question.subject === subject);
-        let subjectScore = subjectResults.filter(result => result.status === 'correct').length * game.TRYOUT_CORRECT +
-          subjectResults.filter(question => question.status === 'incorrect').length * game.TRYOUT_INCORRECT;
-        scores[subject] = subjectScore;
-        score += subjectScore;
-      }
-
-      participated.push({
-        start: result.tryout.start,
-        end: result.tryout.end,
-        scores: scores,
-        score: score
-      });
-    }
-
-    // Send
-    res.send(participated);
 
   });
 });

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { Config } from './config.service';
 import { StatusService } from './status.service';
 
 @Component({
@@ -9,7 +10,7 @@ import { StatusService } from './status.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  constructor (public status: StatusService, private router: Router) { }
+  constructor (public status: StatusService, private router: Router, public config: Config) { }
 
   logout() {
     this.status.logout().then(() => this.router.navigateByUrl('/'));

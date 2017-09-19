@@ -1,9 +1,14 @@
-/** Check a user is logged in.
- *
- * Can be used as middleware; calls the next function if the user is
- * logged in and sends a 401 otherwise.
- */
-module.exports.assertUserAuthenticated = function(req, res, next) {
-  if (req.user) next();
-  else res.status(401).send({});
-};
+models = require('../models');
+
+/** Check the user role. */
+function assertUserRole(role) {
+  return function(req, res, next) {
+    if (req.user && req.user.role >= role) next();
+    else res.status(401).send();
+  };
+}
+
+module.exports.assertUserRole = assertUserRole;
+module.exports.assertUserAuthenticated = assertUserRole(models.roles.user);
+module.exports.assertPlayer = assertUserRole(models.roles.player);
+module.exports.assertAdmin = assertUserRole(models.roles.captain);

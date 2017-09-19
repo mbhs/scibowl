@@ -10,7 +10,11 @@
     </ul>
     <ul class="navbar-nav" *ngIf="status.user">
       <li class="nav-item text-muted">
-        <span class="navbar-text"><i class="fa fa-user"></i> {{ status.user.name.first }} {{ status.user.name.last }}</span>
+        <a class="nav-link" routerLink="/user/profile">
+          <i class="fa fa-user" *ngIf="status.user.role == config.ROLES.user"></i>
+          <i class="fa fa-trophy" *ngIf="status.user.role == config.ROLES.captain"></i>
+          {{ status.user.name.first }} {{ status.user.name.last }}
+        </a>
       </li>
 
       <li class="nav-item"><a class="nav-link" (click)="logout()" href="javascript:void(0)">Logout</a></li>

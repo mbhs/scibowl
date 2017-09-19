@@ -10,4 +10,7 @@ router.use('/users', user);
 const tryout = require('./routes/tryout');
 router.use('/tryout', tryout);
 
+const admin = require('./routes/admin');
+router.use('/admin', admin);
+
 module.exports = router;
