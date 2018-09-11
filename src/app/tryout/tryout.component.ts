@@ -1,5 +1,5 @@
 import { Component, AfterViewInit } from '@angular/core';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import 'rxjs/add/operator/map';
 
 import { Config } from '../config.service';
@@ -29,7 +29,7 @@ export class TryoutComponent implements AfterViewInit {
   // Current fraction of the progress bar that should be shaded
   timeFraction: number;
 
-  constructor(private http: Http, public config: Config) { }
+  constructor(private http: HttpClient, public config: Config) { }
 
   ngAfterViewInit() {
     // Setup timer to continuously update question time
@@ -60,7 +60,7 @@ export class TryoutComponent implements AfterViewInit {
   }
 
   nextQuestion() {
-    this.http.post('/api/tryout/next', { }).subscribe(res => {
+    this.http.post('/api/tryout/next', { }, { observe: 'response' }).subscribe(res => {
       if (res.status === 200) {
         this.started = true;
 
@@ -70,7 +70,7 @@ export class TryoutComponent implements AfterViewInit {
         this.answerChoice = '';
 
         // Populate question
-        this.question = res.json();
+        this.question = res.body;
         this.question.released = new Date(this.question.released).getTime();
         this.timeFraction = 0;
       } else if (res.status === 204) {

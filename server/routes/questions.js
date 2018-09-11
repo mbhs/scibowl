@@ -48,13 +48,15 @@ router.post('/:id/edit', (req, res) => {
 
 router.get('/:id', (req, res) => {
 
-  if (!req.user || req.user.role < models.roles.staff) {
-    res.status(401).send({});
-    return;
-  }
-
   // Find and send the question
   models.Question.findById(req.params.id, (err, question) => {
+
+    if (!req.user && question.circulation > models.roles.public ||
+        req.user && question.circulation > req.user.role) {
+      res.status(401).send({});
+      return;
+    }
+
     res.send(question);
   });
 

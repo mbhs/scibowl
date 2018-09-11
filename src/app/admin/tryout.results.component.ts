@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import 'rxjs/add/operator/map';
 
 import { Config } from '../config.service';
@@ -11,7 +11,7 @@ import { Config } from '../config.service';
 export class TryoutResultsComponent {
   tryouts = null;
 
-  constructor (private http: Http, public config: Config) {
-    this.http.get('/api/admin/tryouts').map(res => res.json()).subscribe(tryouts => this.tryouts = tryouts);
+  constructor (private http: HttpClient, public config: Config) {
+    // this.http.get('/api/admin/tryouts').map(res => res.json()).subscribe(tryouts => this.tryouts = tryouts);
   }
 }

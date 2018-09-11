@@ -8,7 +8,7 @@ const Types = Schema.Types;
 const game = require('./game');
 const validate = require('./validate');
 
-const roles = { public: 0, student: 1, member: 2, captain: 3 };
+const roles = { public: 0, student: 1, member: 2, captain: 3, deity: 4 };
 
 
 /** Defines a user class for use throughout the site.
@@ -17,21 +17,29 @@ const roles = { public: 0, student: 1, member: 2, captain: 3 };
  * permission file.
  */
 const userSchema = new Schema({
-  username  : { type: Types.String, required: true },
-  password  : { type: Types.String, required: true },
+  username  : { type: String, required: true },
+  password  : { type: String, required: true },
   name      : {
-    first   : { type: Types.String, required: true },
-    last    : { type: Types.String, required: true },
+    first   : { type: String, required: true },
+    last    : { type: String, required: true },
   },
-  email     : { type: Types.String, required: true },
-  role      : { type: Types.Number, required: true, enum: roles, default: roles.public },
-  year      : { type: Types.Number, required: true }
+  email     : { type: String, required: true },
+  role      : { type: Number, required: true, enum: roles, default: roles.public },
+  year      : { type: Number, required: true }
 });
 
 /** Connect to the passport. */
 userSchema.plugin(passportLocalMongoose);
 
 const User = mongoose.model('User', userSchema);
+
+const schoolSchema = new Schema({
+  name      : { type: String },
+  students  : [{
+    user    : { type: Types.ObjectId, ref: 'User' }
+  }]
+});
+const School = mongoose.model('School', schoolSchema);
 
 
 /** Shared characteristics of all Science Bowl questions.
@@ -41,12 +49,11 @@ const User = mongoose.model('User', userSchema);
  */
 const questionSchema = new Schema({
   author       : { type: Types.ObjectId, ref: 'User' },
-  text         : { type: Types.String, required: true },
-  subject      : { type: Types.String, enum: game.SUBJECTS, required: true },
+  text         : { type: String, required: true },
+  subject      : { type: String, enum: game.SUBJECTS, required: true },
   bonus        : { type: Types.ObjectId, ref: 'Question' },
-  difficulty   : { type: Types.Number },
-  circulation  : { type: Types.Number, enum: roles, required: true, default: roles.captain },
-  time         : { type: Types.Number, default: 5 }
+  difficulty   : { type: Number },
+  circulation  : { type: Number, enum: roles, required: true, default: roles.captain },
 }, { discriminatorKey: 'kind' });
 const Question = mongoose.model('Question', questionSchema);
 
@@ -59,13 +66,13 @@ const Question = mongoose.model('Question', questionSchema);
  * response.
  */
 const choiceSchema = new Schema({
-  choice:   { type: Types.String, enum: game.CHOICES, required: true },
-  text:     { type: Types.String, required: true }
+  choice:   { type: String, enum: game.CHOICES, required: true },
+  text:     { type: String, required: true }
 });
 
 const multipleChoiceQuestionSchema = new Schema({
   choices   : { type: [ choiceSchema ], required: true },
-  answer    : { type: Types.String, enum: game.CHOICES, required: true }
+  answer    : { type: String, enum: game.CHOICES, required: true }
 });
 
 /** Update a multiple choice question from response data. */
@@ -92,7 +99,7 @@ const MultipleChoiceQuestion = Question.discriminator('MultipleChoiceQuestion', 
  * ended answer field, which accepts any string.
  */
 const shortAnswerQuestionSchema = new Schema({
-  answer   : { type: Types.String, required: true }
+  answer   : { type: String, required: true }
 });
 
 /** Update a short answer question from response data. */
@@ -107,29 +114,30 @@ const ShortAnswerQuestion = Question.discriminator('ShortAnswerQuestion', shortA
 // Rounds
 const roundSchema = new Schema({
   owner        : { type: Types.ObjectId, ref: 'User' },
-  source       : { type: Types.String },
-  questions    : [{ type: Types.ObjectId, ref: 'Question', required: true }],
-  visibility   : { type: Types.Number, enum: game.VISIBILITY, required: true, default: 1 }
-}, { discriminatorKey: 'kind '});
+  source       : { type: String },
+  questions    : [{
+    question   : { type: Types.ObjectId, ref: 'Question', required: true },
+    time       : { type: Number, default: 5 }
+  }]
+}, { discriminatorKey: 'kind' });
 const Round = mongoose.model('Round', roundSchema);
 
 const tryoutSchema = new Schema({
-  start       : { type: Types.Date, required: true },
-  end         : { type: Types.Date, required: true },
-  code        : { type: Types.String },
-  correct     : { type: Types.Number, default: 1.0 },
-  incorrect   : { type: Types.Number, default: -0.75 }
+  start       : { type: Date, required: true },
+  end         : { type: Date, required: true },
+  correct     : { type: Number, default: 1.0 },
+  incorrect   : { type: Number, default: -0.75 }
 });
-const TryoutRound = Round.discriminator('TryoutRound', tryoutSchema);
+const Tryout = Round.discriminator('Tryout', tryoutSchema);
 
-const questionStatus = ['released', 'correct', 'incorrect', 'skipped'];
+const questionStatus = { released: 0, skipped: 1, incorrect: 2, correct: 3 };
 const roundResultSchema = new Schema({
   round       : { type: Types.ObjectId, ref: 'Round' },
   updates     : [{
-    entity    : { type: Types.Number, default: 0 },
+    entity    : { type: Number, default: 0 },
     question  : { type: Types.ObjectId, ref: 'Question', required: true },
-    status    : { type: Types.String, enum: questionStatus, required: true },
-    time      : { type: Types.Date, required: true }
+    status    : { type: Number, enum: questionStatus, required: true },
+    time      : { type: Date, required: true }
   }],
   entities    : [{ type: Types.ObjectId, ref: 'User', required: true }]
 });
@@ -143,6 +151,6 @@ module.exports = {
   MultipleChoiceQuestion: MultipleChoiceQuestion,
   ShortAnswerQuestion: ShortAnswerQuestion,
   Round: Round,
-  TryoutRound: TryoutRound,
+  Tryout: Tryout,
   RoundResult: RoundResult
 };

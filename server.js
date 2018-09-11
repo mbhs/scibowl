@@ -42,7 +42,7 @@ console.log('Loaded plugins...');
 
 // Database initialization
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/scibowl', { useMongoClient: true });
+mongoose.connect('mongodb://localhost/scibowl');
 console.log("Connected to database...");
 
 // Direct API requests to server router

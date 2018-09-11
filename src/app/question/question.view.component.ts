@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import 'rxjs/add/operator/map';
 
 import { Config } from '../config.service';
@@ -15,7 +15,7 @@ export class QuestionViewComponent implements OnInit {
   editing: Boolean = false;
   new_question: Boolean = false;
 
-  constructor(private fb: FormBuilder, private router: Router, private route: ActivatedRoute, private http: Http,
+  constructor(private fb: FormBuilder, private router: Router, private route: ActivatedRoute, private http: HttpClient,
               public config: Config) {
     const controls = {
       text: ['', Validators.required],
@@ -40,14 +40,14 @@ export class QuestionViewComponent implements OnInit {
         this.editing = true;
         this.new_question = true;
       } else {
-        this.http.get('/api/question/' + id).map(res => res.json()).subscribe(res => {
-          this.questionForm.controls.text.setValue(res.text);
-          this.questionForm.controls.subject.setValue(res.subject);
-          this.questionForm.controls.type.setValue(res.type);
+        this.http.get('/api/question/' + id).subscribe(res => {
+          this.questionForm.controls.text.setValue(res['text']);
+          this.questionForm.controls.subject.setValue(res['subject']);
+          this.questionForm.controls.type.setValue(res['type']);
           if (this.questionForm.controls.type.value === 'MultipleChoice') {
-            this.questionForm.controls.choiceAnswer.setValue(res.answer);
+            this.questionForm.controls.choiceAnswer.setValue(res['answer']);
           } else {
-            this.questionForm.controls.shortAnswer.setValue(res.answer);
+            this.questionForm.controls.shortAnswer.setValue(res['answer']);
           }
         });
       }
@@ -72,7 +72,7 @@ export class QuestionViewComponent implements OnInit {
     }
 
     if (this.new_question) {
-      this.http.post('/api/question/new', data).map(res => res.json()).subscribe(res => {
+      this.http.post('/api/question/new', data).subscribe(res => {
         this.router.navigateByUrl('/question/' + res['id']);
       });
     } else {

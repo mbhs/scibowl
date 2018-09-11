@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/scibowl', { useMongoClient: true });
+mongoose.connect('mongodb://localhost/scibowl');
 console.log("Connected to database...");
 
 const models = require('../models');
 const parse = require('csv-parse/lib/sync');
 const fs = require('fs');
 
-const START = new Date('September 17, 2017 10:00:00');
-const END = new Date('November 19, 2017 23:59:00');
+const START = new Date('September 11, 2018 0:00:00');
+const END = new Date('November 19, 2018 23:59:00');
 
 fs.readFile('tryout_questions.csv', (err, data) => {
   const entries = parse(data);

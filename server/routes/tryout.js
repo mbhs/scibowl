@@ -8,13 +8,9 @@ const router = express.Router();
 
 
 /** Return a promise to the current tryout.
- *
- * TODO: The easier way to handle this is actually to just have a
- * boolean active variable. The selection can be changed on the
- * client side by an administrator.
  */
-function getCurrentTryout() {
-  return models.Tryout.findOne()
+function getCurrentTryout(req) {
+  return models.Tryout.findById(req.params.id)
     .where('start').lt(new Date())
     .where('end').gt(new Date())
     .populate('questions.question');
@@ -23,7 +19,7 @@ function getCurrentTryout() {
 
 /** Middleware that asserts there is a tryout and that the user has a tryout results model. */
 function assertHasTryoutResult(req, res, next) {
-  getCurrentTryout().then(tryout => {
+  getCurrentTryout(req).then(tryout => {
     if (!tryout) { res.status(204).send({ reason: "no active tryout" }); return; }  // TODO: find status code
     models.TryoutResults.findOne({ user: req.user, tryout: tryout }).then(tryoutResults => {
       if (!tryoutResults) models.TryoutResults.create({ user: req.user, tryout: tryout }).then(() => {
@@ -40,12 +36,35 @@ function assertHasTryoutResult(req, res, next) {
 
 
 /** Get the active tryout. */
-router.get('/active', (req, res) => {
-  getCurrentTryout().then(
+router.get('/:id', (req, res) => {
+  getCurrentTryout(req).then(
     (tryout) => { res.send({ start: tryout.start, end: tryout.end }); },
     () => res.status(204).send());
 });
 
+
+function questionsAnswered(tryoutResult) {
+  let i = 0;
+  for (let update of tryoutResult.updates) {
+    if (update.status != models.RoundResult.questionStatus.released) i++;
+  }
+  return i;
+}
+
+// tryoutResultsSchema.methods.currentResult = function() { return this.results[this.results.length - 1] };
+// tryoutResultsSchema.methods.score = function() {
+//   const scores = { total : { score: 0, answered: 0 } };
+//   // Add up the score for each subject
+//   for (let subject of game.SUBJECTS) {
+//     const subjectResults = this.results.filter(result => result.question.subject === subject && result.status !== 'skipped');
+//     let subjectScore = subjectResults.filter(result => result.status === 'correct').length * game.TRYOUT_CORRECT +
+//       subjectResults.filter(question => question.status === 'incorrect').length * game.TRYOUT_INCORRECT;
+//     scores[subject] = { score: subjectScore, answered: subjectResults.length };
+//     scores.total.score += subjectScore;
+//     scores.total.answered += subjectResults.length;
+//   }
+//   return scores;
+// };
 
 /** Get the next question for the user taking a tryout.
  *
@@ -53,10 +72,10 @@ router.get('/active', (req, res) => {
  * model. After that, the next question the user should complete is
  * determined and sent.
  */
-router.post('/next', middleware.assertUserAuthenticated, assertHasTryoutResult, (req, res) => {
-  getCurrentTryout().then(tryout =>
+router.post('/:id/next', middleware.assertUserAuthenticated, assertHasTryoutResult, (req, res) => {
+  getCurrentTryout(req).then(tryout =>
 
-    models.TryoutResults.findOne({ user: req.user, tryout: tryout }).then(tryoutResult => {
+    models.RoundResult.findOne({ user: req.user, round: tryout }).then(tryoutResult => {
 
       // Get the next question number
       let questionCount = tryoutResult.resultCount();
@@ -99,7 +118,7 @@ router.post('/next', middleware.assertUserAuthenticated, assertHasTryoutResult, 
 
 
 /** Skip the current question. */
-router.post('/skip', (req, res) => {
+router.post('/:id/skip', (req, res) => {
   getCurrentTryout().then((tryout) => {
     models.TryoutResults.findOne({ user: req.user, tryout: tryout }).then((tryoutResult) => {
 
@@ -120,7 +139,7 @@ router.post('/skip', (req, res) => {
 
 
 /** Submit the answer to the current question. */
-router.post('/submit', middleware.assertUserAuthenticated, (req, res) => {
+router.post('/:id/submit', middleware.assertUserAuthenticated, (req, res) => {
   getCurrentTryout().then((tryout) => {
     models.TryoutResults.findOne({ user: req.user, tryout: tryout }).populate('results.question').then((tryoutResult) => {
 

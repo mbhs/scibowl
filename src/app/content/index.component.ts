@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Http } from '@angular/http';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/toPromise';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
 
 import { StatusService } from '../status.service';
 
@@ -12,12 +11,12 @@ import { StatusService } from '../status.service';
 export class IndexComponent implements OnInit {
   tryout = null;
 
-  constructor (public status: StatusService, private http: Http) { }
+  constructor (public status: StatusService, private http: HttpClient) { }
 
   ngOnInit() {
-    this.http.get('/api/tryout/active').subscribe(res => {
+    this.http.get('/api/tryout/active', { observe: 'response' }).subscribe(res => {
       if (res.status === 200) {
-        this.tryout = res.json();
+        this.tryout = res.body;
       } else {
         this.tryout = null;
       }

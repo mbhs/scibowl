@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 import { StatusService } from '../status.service';
@@ -12,7 +12,7 @@ import { StatusService } from '../status.service';
 export class UserRegisterComponent {
   registerForm: FormGroup;
 
-  constructor (private fb: FormBuilder, private router: Router, private status: StatusService, private http: Http) {
+  constructor (private fb: FormBuilder, private router: Router, private status: StatusService, private http: HttpClient) {
     this.registerForm = fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
