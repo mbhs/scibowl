@@ -22,13 +22,13 @@
 
     <p>Time begins when you press the start button. If you have any questions before, during, or after the tryout, <a href="mailto:mbhs.sciencebowl@gmail.com">email us</a>. Good luck, have fun, and thanks for trying out!</p>
 
-    <button type="button" class="btn btn-primary btn-block" [disabled]="!agreed" (click)="nextQuestion()">Start! <i class="fa fa-clock-o"></i></button>
+    <button type="button" class="btn btn-primary btn-block" [disabled]="!agreed" (click)="nextQuestion()">Start! <i class="fas fa-clock"></i></button>
   </ng-container>
 
   <ng-container *ngIf="started && !ended">
     <div class="clearfix">
       <h3 class="float-sm-left">Question {{ question.number }} <label [ngClass]="['subject-' + question.subject]"></label></h3>
-      <button type="button" class="btn btn-primary btn-lg float-sm-right" (click)="nextQuestion()" *ngIf="stopped">Next question <i class="fa fa-arrow-right"></i></button>
+      <button type="button" class="btn btn-primary btn-lg float-sm-right" (click)="nextQuestion()" *ngIf="stopped">Next question <i class="fas fa-arrow-right"></i></button>
     </div>
 
     <p>{{ config.SUBJECT_DISPLAY[question.subject] }}: {{ question.text }}</p>
@@ -47,8 +47,8 @@
 
     <br/><br/>
     <div class="clearfix">
-      <button type="button" class="btn btn-success btn-lg float-sm-left" (click)="submit()" [disabled]="!answerable || !answerChoice">Submit <i class="fa fa-check"></i></button>
-      <button type="button" class="btn btn-danger btn-lg float-sm-right" (click)="skip()" [disabled]="stopped">Skip <i class="fa fa-times"></i></button>
+      <button type="button" class="btn btn-success btn-lg float-sm-left" (click)="submit()" [disabled]="!answerable || !answerChoice">Submit <i class="fas fa-check"></i></button>
+      <button type="button" class="btn btn-danger btn-lg float-sm-right" (click)="skip()" [disabled]="stopped">Skip <i class="fas fa-times"></i></button>
     </div>
   </ng-container>
 

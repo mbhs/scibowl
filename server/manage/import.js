@@ -7,12 +7,13 @@ const models = require('../models');
 const parse = require('csv-parse/lib/sync');
 const fs = require('fs');
 
+const NAME = "Montgomery Blair High School 2018 Tryout";
 const START = new Date('September 11, 2018 0:00:00');
 const END = new Date('November 19, 2018 23:59:00');
 
 fs.readFile('tryout_questions.csv', (err, data) => {
   const entries = parse(data);
-  const tryout = models.Tryout({ start: START, end: END, questions: [] });
+  const tryout = models.Tryout({ name: NAME, start: START, end: END, questions: [] });
 
   for (const entry of entries) {
     const question = new models.MultipleChoiceQuestion({

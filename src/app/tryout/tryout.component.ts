@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import 'rxjs/add/operator/map';
 
@@ -9,7 +9,7 @@ import { Config } from '../config.service';
   selector: 'sb-tryout',
   templateUrl: './tryout.component.html'
 })
-export class TryoutComponent implements AfterViewInit {
+export class TryoutComponent implements OnInit, AfterViewInit {
   // Whether the user has agreed to the conditions
   agreed: Boolean = false;
   // Whether the tryout has started
@@ -29,7 +29,13 @@ export class TryoutComponent implements AfterViewInit {
   // Current fraction of the progress bar that should be shaded
   timeFraction: number;
 
+  tryout = null;
+
   constructor(private http: HttpClient, public config: Config) { }
+
+  ngOnInit() {
+    this.http.get('/api/tryout/').subscribe(res => this.tryout = res['_id']);
+  }
 
   ngAfterViewInit() {
     // Setup timer to continuously update question time
@@ -60,7 +66,7 @@ export class TryoutComponent implements AfterViewInit {
   }
 
   nextQuestion() {
-    this.http.post('/api/tryout/next', { }, { observe: 'response' }).subscribe(res => {
+    this.http.post(`/api/tryout/${this.tryout}/next`, { }, { observe: 'response' }).subscribe(res => {
       if (res.status === 200) {
         this.started = true;
 
@@ -80,10 +86,12 @@ export class TryoutComponent implements AfterViewInit {
   }
 
   skip() {
-    this.http.post('/api/tryout/skip', { }).subscribe(() => { this.stopped = true; this.answerable = false; });
+    this.http.post(`/api/tryout/${this.tryout}/skip`, { })
+      .subscribe(() => { this.stopped = true; this.answerable = false; });
   }
 
   submit() {
-    this.http.post('/api/tryout/submit', { answer: this.answerChoice }).subscribe(() => { this.stopped = true; this.answerable = false; });
+    this.http.post(`/api/tryout/${this.tryout}/submit`, { answer: this.answerChoice })
+      .subscribe(() => { this.stopped = true; this.answerable = false; });
   }
 }

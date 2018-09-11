@@ -2,6 +2,7 @@ const express = require('express');
 const console = require('console');
 
 const models = require('../models');
+const utils = require('../utils');
 const middleware = require('./middleware');
 
 const router = express.Router();
@@ -10,10 +11,9 @@ const router = express.Router();
 /** Return a promise to the current tryout.
  */
 function getCurrentTryout(req) {
-  return models.Tryout.findById(req.params.id)
+  return models.Tryout.findOne()
     .where('start').lt(new Date())
     .where('end').gt(new Date())
-    .populate('questions.question');
 }
 
 
@@ -36,11 +36,11 @@ function assertHasTryoutResult(req, res, next) {
 
 
 /** Get the active tryout. */
-router.get('/:id', (req, res) => {
+router.get('/', (req, res) =>
   getCurrentTryout(req).then(
-    (tryout) => { res.send({ start: tryout.start, end: tryout.end }); },
-    () => res.status(204).send());
-});
+    tryout => res.send(utils.mask(tryout, ['start', 'end', '_id'])),
+    () => res.status(204).send())
+);
 
 
 function questionsAnswered(tryoutResult) {

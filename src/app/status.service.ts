@@ -6,6 +6,7 @@ import 'rxjs/add/operator/toPromise';
 @Injectable()
 export class StatusService {
   user: any;
+  tryout: any;
 
   constructor(private http: HttpClient) {
     this.reload();
@@ -21,6 +22,7 @@ export class StatusService {
   }
 
   reload(): Promise<any> {
-    return this.http.get('/api/users/status').toPromise().then(user => this.user = user, () => this.user = null);
+    return this.http.get('/api/users/status').toPromise()
+      .then(user => this.user = user, () => this.user = null);
   }
 }

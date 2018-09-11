@@ -14,7 +14,7 @@ export class IndexComponent implements OnInit {
   constructor (public status: StatusService, private http: HttpClient) { }
 
   ngOnInit() {
-    this.http.get('/api/tryout/active', { observe: 'response' }).subscribe(res => {
+    this.http.get('/api/tryout/', { observe: 'response' }).subscribe(res => {
       if (res.status === 200) {
         this.tryout = res.body;
       } else {

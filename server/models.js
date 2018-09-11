@@ -115,6 +115,7 @@ const ShortAnswerQuestion = Question.discriminator('ShortAnswerQuestion', shortA
 const roundSchema = new Schema({
   owner        : { type: Types.ObjectId, ref: 'User' },
   source       : { type: String },
+  title        : { type: String },
   questions    : [{
     question   : { type: Types.ObjectId, ref: 'Question', required: true },
     time       : { type: Number, default: 5 }
