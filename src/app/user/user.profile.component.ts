@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 
 import { Config } from '../config.service'
-import { StatusService } from '../status.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'user-profile',
   templateUrl: './user.profile.component.html'
 })
 export class UserProfileComponent {
-  constructor(public status: StatusService, public config: Config) { }
+  constructor(public status: AuthService, public config: Config) { }
 }

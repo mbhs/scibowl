@@ -2,6 +2,13 @@
   <h1>Science Bowl Tryouts</h1>
 
   <ng-container *ngIf="!started">
+    <div *ngIf="tryout?.started">
+      <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle"></i> <strong>Warning!</strong> You appear to have already started this tryout, and so
+        you will begin the tryout where you left off, not at the first question. If you don't believe this to be the case,
+        please let us know.
+      </div>
+    </div>
     <p><strong>Make sure to read the following rules in order to achieve success on the tryouts.</strong></p>
 
     <p>Welcome to the online tryouts for the Montgomery Blair High School Science Bowl Team! The following questions are designed to test your knowledge of the six Science Bowl subjects: physics, mathematics, chemistry, biology, earth and space science, and energy. All questions are multiple choice, with four choices, and have strict time limits ranging from 10 to 45 seconds. <strong>If your answer choice is not submitted when time runs out for a question, it is not recorded and you may no longer answer that question.</strong> However, once an answer choice has been submitted, it is final and can no longer be changed. There are 50 questions, and overall, we estimate that the test will require less than half an hour.</p>
@@ -14,30 +21,30 @@
 
     <p>The captains have worked tirelessly to produce this tryout and these questions. <strong>During the tryout, you can only consult your own knowledge of the subjects!</strong> Any violation of the integrity of this tryout will be reported to appropriate school authorities. Violations include, but are not limited to, consulting any reference source (including textbooks or notes), searching the Internet, talking to another person, or using a calculator. No students is authorized to take the tryout more than once per year. No discussion of the contents of the tryout is permitted (except with a captain) until the tryout window ends.</p>
 
-    <label class="custom-control custom-checkbox">
-      <input type="checkbox" class="custom-control-input" [(ngModel)]="agreed">
-      <span class="custom-control-indicator"></span>
-      <span class="custom-control-description">I agree to respect the integrity of this tryout by not using any outside reference sources and by not discussing the content of this tryout with anyone else until the tryout window ends. I certify that this is the only time I am taking this tryout this year and have had no advance knowledge of the content of this tryout.</span>
-    </label>
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox" class="custom-control-input" [(ngModel)]="agreed" id="agreeCheck">
+      <label class="custom-control-label" for="agreeCheck">I agree to respect the integrity of this tryout by not using any outside reference sources and by not discussing the content of this tryout with anyone else until the tryout window ends. I certify that this is the only time I am taking this tryout this year and have had no advance knowledge of the content of this tryout.</label>
+    </div>
+    <br/>
 
     <p>Time begins when you press the start button. If you have any questions before, during, or after the tryout, <a href="mailto:mbhs.sciencebowl@gmail.com">email us</a>. Good luck, have fun, and thanks for trying out!</p>
 
-    <button type="button" class="btn btn-primary btn-block" [disabled]="!agreed" (click)="nextQuestion()">Start! <i class="fas fa-clock"></i></button>
+    <button *ngIf="!tryout?.started" class="btn btn-block btn-primary" [disabled]="!agreed" (click)="nextQuestion()">Start! <i class="fas fa-clock"></i></button>
+    <button *ngIf="tryout?.started" class="btn btn-block btn-warning" [disabled]="!agreed" (click)="nextQuestion()">Continue <i class="fas fa-play-circle"></i></button>
   </ng-container>
 
   <ng-container *ngIf="started && !ended">
     <div class="clearfix">
-      <h3 class="float-sm-left">Question {{ question.number }} <label [ngClass]="['subject-' + question.subject]"></label></h3>
+      <h3 class="float-sm-left">Question {{ question.number }} / {{ tryout.numQuestions }} <label [ngClass]="['subject-' + question.subject]"></label></h3>
       <button type="button" class="btn btn-primary btn-lg float-sm-right" (click)="nextQuestion()" *ngIf="stopped">Next question <i class="fas fa-arrow-right"></i></button>
     </div>
 
-    <p>{{ config.SUBJECT_DISPLAY[question.subject] }}: {{ question.text }}</p>
+    <p><em>{{ config.SUBJECT_DISPLAY[question.subject] }}:</em> {{ question.text }}</p>
 
     <div class="custom-controls-stacked">
       <label class="custom-control custom-radio" *ngFor="let choice of config.CHOICES;">
-        <input type="radio" class="custom-control-input" [(ngModel)]="answerChoice" [value]="choice" [disabled]="!answerable">
-        <span class="custom-control-indicator"></span>
-        <span class="custom-control-description">{{ choice }}) {{ question.choices[choice] }}</span>
+        <input type="radio" class="custom-control-input" [(ngModel)]="answerChoice" [value]="choice" [disabled]="!answerable" id="choice{{ choice }}Radio">
+        <label class="custom-control-label" for="choice{{ choice }}Radio">{{ choice }}) {{ question.choices[choice] }}</label>
       </label>
     </div>
 

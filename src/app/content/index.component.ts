@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 
-import { StatusService } from '../status.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'sb-index',
@@ -11,7 +11,7 @@ import { StatusService } from '../status.service';
 export class IndexComponent implements OnInit {
   tryout = null;
 
-  constructor (public status: StatusService, private http: HttpClient) { }
+  constructor (public status: AuthService, private http: HttpClient) { }
 
   ngOnInit() {
     this.http.get('/api/tryout/', { observe: 'response' }).subscribe(res => {

@@ -24,7 +24,7 @@ const userSchema = new Schema({
     last    : { type: String, required: true },
   },
   email     : { type: String, required: true },
-  role      : { type: Number, required: true, enum: roles, default: roles.public },
+  role      : { type: Number, required: true, min: roles.public, max: roles.deity, default: roles.public },
   year      : { type: Number, required: true }
 });
 
@@ -131,18 +131,36 @@ const tryoutSchema = new Schema({
 });
 const Tryout = Round.discriminator('Tryout', tryoutSchema);
 
-const questionStatus = { released: 0, skipped: 1, incorrect: 2, correct: 3 };
 const roundResultSchema = new Schema({
   round       : { type: Types.ObjectId, ref: 'Round' },
   updates     : [{
     entity    : { type: Number, default: 0 },
     question  : { type: Types.ObjectId, ref: 'Question', required: true },
-    status    : { type: Number, enum: questionStatus, required: true },
+    status    : { type: String, enum: game.STATUS, required: true },
     time      : { type: Date, required: true }
-  }],
-  entities    : [{ type: Types.ObjectId, ref: 'User', required: true }]
-});
+  }]
+}, { discriminatorKey: 'kind' });
+roundResultSchema.methods.questionsReleased = function() {
+  let i = 0;
+  for (let update of this.updates) {
+    if (update.status === "released") i++;
+  }
+  return i;
+};
+roundResultSchema.methods.lastUpdate = function() {
+  return this.updates[this.updates.length - 1];
+};
 const RoundResult = mongoose.model('RoundResult', roundResultSchema);
+
+const tryoutResultSchema = new Schema({
+  user    : { type: Types.ObjectId, ref: 'User' }
+});
+const TryoutResult = RoundResult.discriminator('TryoutResult', tryoutResultSchema);
+
+const playedRoundSchema = new Schema({
+  teams       : [[{ type: Types.ObjectId, ref: 'User', required: true }]]
+});
+const PlayedRound = RoundResult.discriminator('PlayedRound', playedRoundSchema);
 
 
 module.exports = {
@@ -153,5 +171,7 @@ module.exports = {
   ShortAnswerQuestion: ShortAnswerQuestion,
   Round: Round,
   Tryout: Tryout,
-  RoundResult: RoundResult
+  RoundResult: RoundResult,
+  TryoutResult: TryoutResult,
+  PlayedRound: PlayedRound
 };

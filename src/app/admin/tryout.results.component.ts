@@ -12,6 +12,6 @@ export class TryoutResultsComponent {
   tryouts = null;
 
   constructor (private http: HttpClient, public config: Config) {
-    // this.http.get('/api/admin/tryouts').map(res => res.json()).subscribe(tryouts => this.tryouts = tryouts);
+    this.http.get('/api/admin/tryouts').subscribe(tryouts => this.tryouts = tryouts);
   }
 }

@@ -2,14 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/toPromise';
+import {ActivatedRouteSnapshot, CanActivate, Router} from '@angular/router';
+
+
+export const ROLES = { public: 0, student: 1, member: 2, captain: 3, deity: 4 };
 
 @Injectable()
-export class StatusService {
+export class AuthService implements CanActivate {
   user: any;
-  tryout: any;
 
-  constructor(private http: HttpClient) {
-    this.reload();
+  constructor(private http: HttpClient, private router: Router) {
+    this.reload().then(() => { return; });
   }
 
   login(username: String, password: String): Promise<any> {
@@ -24,5 +27,18 @@ export class StatusService {
   reload(): Promise<any> {
     return this.http.get('/api/users/status').toPromise()
       .then(user => this.user = user, () => this.user = null);
+  }
+
+  canActivate(route: ActivatedRouteSnapshot): boolean {
+    let authorized = true;
+    if (!this.user) {
+      authorized = false;
+    } else if (route.data.expectedRole) {
+      authorized = this.user.role >= ROLES[route.data.role];
+    }
+    if (!authorized) {
+      this.router.navigate(['user/login']);
+    }
+    return authorized;
   }
 }

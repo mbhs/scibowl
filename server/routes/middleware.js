@@ -3,7 +3,6 @@ models = require('../models');
 /** Check the user role. */
 function assertUserRole(role) {
   return function(req, res, next) {
-    console.log(req.user.role, role);
     if (req.user && req.user.role >= role) next();
     else res.status(401).send();
   };

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { StatusService } from '../status.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'sb-user-login',
@@ -12,7 +12,7 @@ export class UserLoginComponent {
   loginForm: FormGroup;
   failed: Boolean = false;
 
-  constructor (private fb: FormBuilder, private router: Router, private status: StatusService) {
+  constructor (private fb: FormBuilder, private router: Router, private status: AuthService) {
     this.loginForm = fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required]

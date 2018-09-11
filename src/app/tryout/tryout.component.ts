@@ -34,7 +34,7 @@ export class TryoutComponent implements OnInit, AfterViewInit {
   constructor(private http: HttpClient, public config: Config) { }
 
   ngOnInit() {
-    this.http.get('/api/tryout/').subscribe(res => this.tryout = res['_id']);
+    this.http.get('/api/tryout/').subscribe(res => this.tryout = res);
   }
 
   ngAfterViewInit() {
@@ -66,7 +66,7 @@ export class TryoutComponent implements OnInit, AfterViewInit {
   }
 
   nextQuestion() {
-    this.http.post(`/api/tryout/${this.tryout}/next`, { }, { observe: 'response' }).subscribe(res => {
+    this.http.post(`/api/tryout/${this.tryout['_id']}/next`, { }, { observe: 'response' }).subscribe(res => {
       if (res.status === 200) {
         this.started = true;
 
@@ -86,12 +86,12 @@ export class TryoutComponent implements OnInit, AfterViewInit {
   }
 
   skip() {
-    this.http.post(`/api/tryout/${this.tryout}/skip`, { })
+    this.http.post(`/api/tryout/${this.tryout['_id']}/skip`, { })
       .subscribe(() => { this.stopped = true; this.answerable = false; });
   }
 
   submit() {
-    this.http.post(`/api/tryout/${this.tryout}/submit`, { answer: this.answerChoice })
+    this.http.post(`/api/tryout/${this.tryout['_id']}/submit`, { answer: this.answerChoice })
       .subscribe(() => { this.stopped = true; this.answerable = false; });
   }
 }

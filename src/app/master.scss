@@ -1,6 +1,6 @@
 $subjects: "physics", "ess", "bio", "chem", "math", "energy";
 $subject-colors: (physics: red, ess: darkblue, bio: seagreen, chem: purple, math: hotpink, energy: gold);
-$subject-icons: (physics: "\f085", ess: "\f0ac", bio: "\f21e", chem: "\f0c3", math: "\f1ec", energy: "\f0e7");
+$subject-icons: (physics: "\f135", ess: "\f0ac", bio: "\f06c", chem: "\f0c3", math: "\f1ec", energy: "\f0eb");
 
 input[type=radio].subject-button,
 input[type=checkbox].subject-button {
@@ -21,7 +21,8 @@ input[type=checkbox].subject-button {
     background-color: map-get($subject-colors, $subject);
     text-align: center;
 
-    font-family: FontAwesome;
+    font-family: "Font Awesome\ 5 Free";
+    font-weight: 900;
     content: map-get($subject-icons, $subject);
 
     width: 2.5rem;

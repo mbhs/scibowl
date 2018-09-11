@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
-import { StatusService } from '../status.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'sb-user-register',
@@ -12,7 +12,7 @@ import { StatusService } from '../status.service';
 export class UserRegisterComponent {
   registerForm: FormGroup;
 
-  constructor (private fb: FormBuilder, private router: Router, private status: StatusService, private http: HttpClient) {
+  constructor (private fb: FormBuilder, private router: Router, private status: AuthService, private http: HttpClient) {
     this.registerForm = fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required],

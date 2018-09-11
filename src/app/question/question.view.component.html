@@ -34,14 +34,12 @@
     <label class="col-sm-2"><strong>Type</strong></label>
     <div class="col-sm-10" *ngIf="editing">
       <label class="custom-control custom-radio">
-        <input type="radio" class="custom-control-input" formControlName="type" value="MultipleChoice">
-        <span class="custom-control-indicator"></span>
-        <span class="custom-control-description">Multiple Choice</span>
+        <input type="radio" class="custom-control-input" formControlName="type" value="MultipleChoice" id="multipleChoiceRadio">
+        <label class="custom-control-label" for="multipleChoiceRadio">Multiple Choice</label>
       </label>
       <label class="custom-control custom-radio">
-        <input type="radio" class="custom-control-input" formControlName="type" value="ShortAnswer">
-        <span class="custom-control-indicator"></span>
-        <span class="custom-control-description">Short Answer</span>
+        <input type="radio" class="custom-control-input" formControlName="type" value="ShortAnswer" id="shortAnswerRadio">
+        <label class="custom-control-label" for="shortAnswerRadio">Short Answer</label>
       </label>
     </div>
     <div class="col-sm-10" *ngIf="!editing">
@@ -65,9 +63,8 @@
       <label class="col-sm-2"><strong>Answer</strong></label>
       <div class="col-sm-10" *ngIf="editing">
         <label class="custom-control custom-radio" *ngFor="let choice of CHOICES;">
-          <input type="radio" class="custom-control-input" formControlName="choiceAnswer" [value]="choice">
-          <span class="custom-control-indicator"></span>
-          <span class="custom-control-description">{{ choice }}</span>
+          <input type="radio" class="custom-control-input" formControlName="choiceAnswer" [value]="choice" id="choice{{ choice }}Radio">
+          <label class="custom-control-label" for="choice{{ choice }}Radio">{{ choice }}</label>
         </label>
       </div>
       <div class="col-sm-10" *ngIf="!editing">

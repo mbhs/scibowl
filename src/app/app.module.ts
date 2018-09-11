@@ -19,19 +19,26 @@ import { UserProfileComponent } from './user/user.profile.component';
 import { UserRegisterComponent } from './user/user.register.component';
 
 import { Config } from './config.service';
-import { StatusService } from './status.service';
+import { AuthService } from './auth.service';
 
 const appRoutes: Routes = [
-  { path: 'admin/tryouts', component: TryoutResultsComponent },
-  { path: 'admin', component: ControlPanelComponent },
+  { path: 'admin/tryouts', component: TryoutResultsComponent,
+    canActivate: [AuthService], data: { role: 'captain' }},
+  { path: 'admin', component: ControlPanelComponent,
+    canActivate: [AuthService], data: { role: 'captain' }},
   { path: '', component: IndexComponent },
   { path: 'resources', component: ResourcesComponent },
-  { path: 'question/search', component: QuestionSearchComponent },
-  { path: 'question/:id', component: QuestionViewComponent },
-  { path: 'tryout', component: TryoutComponent },
+  { path: 'question/search', component: QuestionSearchComponent,
+    canActivate: [AuthService], data: { role: 'public' }},
+  { path: 'question/:id', component: QuestionViewComponent,
+    canActivate: [AuthService]},
+  { path: 'tryout', component: TryoutComponent,
+    canActivate: [AuthService], data: { role: 'student' }},
   { path: 'user/login', component: UserLoginComponent },
-  { path: 'user/profile', component: UserProfileComponent },
-  { path: 'user/register', component: UserRegisterComponent }
+  { path: 'user/profile', component: UserProfileComponent,
+    canActivate: [AuthService], data: { role: 'public' }},
+  { path: 'user/register', component: UserRegisterComponent,
+    canActivate: [AuthService], data: { role: 'public' }}
 ];
 
 @NgModule({
@@ -59,7 +66,7 @@ const appRoutes: Routes = [
   ],
   providers: [
     Config,
-    StatusService
+    AuthService
   ],
   bootstrap: [AppComponent]
 })
