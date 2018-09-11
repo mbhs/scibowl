@@ -8,7 +8,7 @@ const Types = Schema.Types;
 const game = require('./game');
 const validate = require('./validate');
 
-const roles = { user: 1, player: 2, captain: 3 };
+const roles = { public: 0, student: 1, member: 2, captain: 3 };
 
 
 /** Defines a user class for use throughout the site.
@@ -24,7 +24,7 @@ const userSchema = new Schema({
     last    : { type: Types.String, required: true },
   },
   email     : { type: Types.String, required: true },
-  role      : { type: Types.Number, default: 1, min: roles.user, max: roles.captain },
+  role      : { type: Types.Number, required: true, enum: roles, default: roles.public },
   year      : { type: Types.Number, required: true }
 });
 
@@ -45,7 +45,8 @@ const questionSchema = new Schema({
   subject      : { type: Types.String, enum: game.SUBJECTS, required: true },
   bonus        : { type: Types.ObjectId, ref: 'Question' },
   difficulty   : { type: Types.Number },
-  visibility   : { type: Types.Number, enum: game.VISIBILITY, required: true, default: 1 }
+  circulation  : { type: Types.Number, enum: roles, required: true, default: roles.captain },
+  time         : { type: Types.Number, default: 5 }
 }, { discriminatorKey: 'kind' });
 const Question = mongoose.model('Question', questionSchema);
 
@@ -71,10 +72,11 @@ const multipleChoiceQuestionSchema = new Schema({
 multipleChoiceQuestionSchema.methods.update = function(data) {
   this.subject = data['subject'] || this.subject;
   this.text = data['text'] || this.text;
-  this.choices = data['choices'] || this.choices;  // Todo: actually implement error checking
+  this.choices = data['choices'] || this.choices;  // TODO: actually implement error checking
   this.answer = data['answer'] || this.answer;
 };
 
+/** Construct a dictionary corresponding to a question's choices. */
 multipleChoiceQuestionSchema.methods.choicesMap = function() {
   const choicesMap = {};
   for (let choicePair of this.choices) { choicesMap[choicePair.choice] = choicePair.text; }
@@ -105,56 +107,33 @@ const ShortAnswerQuestion = Question.discriminator('ShortAnswerQuestion', shortA
 // Rounds
 const roundSchema = new Schema({
   owner        : { type: Types.ObjectId, ref: 'User' },
+  source       : { type: Types.String },
   questions    : [{ type: Types.ObjectId, ref: 'Question', required: true }],
   visibility   : { type: Types.Number, enum: game.VISIBILITY, required: true, default: 1 }
 }, { discriminatorKey: 'kind '});
 const Round = mongoose.model('Round', roundSchema);
 
-
-// Tryouts
-const tryoutQuestionSchema = new Schema({
-  question    : { type: Types.ObjectId, ref: "Question", required: true, },
-  time        : { type: Types.Number, required: true }
-});
-
 const tryoutSchema = new Schema({
   start       : { type: Types.Date, required: true },
   end         : { type: Types.Date, required: true },
-  questions   : [ tryoutQuestionSchema ]
+  code        : { type: Types.String },
+  correct     : { type: Types.Number, default: 1.0 },
+  incorrect   : { type: Types.Number, default: -0.75 }
 });
-// const Tryout = Round.discriminator('Tryout', tryoutSchema);
-const Tryout = mongoose.model('Tryout', tryoutSchema);
+const TryoutRound = Round.discriminator('TryoutRound', tryoutSchema);
 
-// Tryout question result
-const tryoutQuestionResultStatus = ['correct', 'incorrect', 'skipped', 'current'];
-const tryoutQuestionResultSchema = new Schema({
-  question:   { type: Schema.Types.ObjectId, ref: 'MultipleChoiceQuestion', required: true },
-  released:   { type: Schema.Types.Date, required: true },
-  status:     { type: Schema.Types.String, enum: tryoutQuestionResultStatus }
+const questionStatus = ['released', 'correct', 'incorrect', 'skipped'];
+const roundResultSchema = new Schema({
+  round       : { type: Types.ObjectId, ref: 'Round' },
+  updates     : [{
+    entity    : { type: Types.Number, default: 0 },
+    question  : { type: Types.ObjectId, ref: 'Question', required: true },
+    status    : { type: Types.String, enum: questionStatus, required: true },
+    time      : { type: Types.Date, required: true }
+  }],
+  entities    : [{ type: Types.ObjectId, ref: 'User', required: true }]
 });
-
-// Tryout round result
-const tryoutResultsSchema = new Schema({
-  tryout:    { type: Schema.Types.ObjectId, ref: 'Tryout', required: true },
-  user:      { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  results:   { type: [ tryoutQuestionResultSchema ], default: [] },
-});
-tryoutResultsSchema.methods.resultCount = function() { return this.results.length };
-tryoutResultsSchema.methods.currentResult = function() { return this.results[this.results.length - 1] };
-tryoutResultsSchema.methods.score = function() {
-  const scores = { total : { score: 0, answered: 0 } };
-  // Add up the score for each subject
-  for (let subject of game.SUBJECTS) {
-    const subjectResults = this.results.filter(result => result.question.subject === subject && result.status !== 'skipped');
-    let subjectScore = subjectResults.filter(result => result.status === 'correct').length * game.TRYOUT_CORRECT +
-      subjectResults.filter(question => question.status === 'incorrect').length * game.TRYOUT_INCORRECT;
-    scores[subject] = { score: subjectScore, answered: subjectResults.length };
-    scores.total.score += subjectScore;
-    scores.total.answered += subjectResults.length;
-  }
-  return scores;
-};
-const TryoutResults = mongoose.model('TryoutResults', tryoutResultsSchema);
+const RoundResult = mongoose.model('RoundResult', roundResultSchema);
 
 
 module.exports = {
@@ -164,6 +143,6 @@ module.exports = {
   MultipleChoiceQuestion: MultipleChoiceQuestion,
   ShortAnswerQuestion: ShortAnswerQuestion,
   Round: Round,
-  Tryout: Tryout,
-  TryoutResults: TryoutResults,
+  TryoutRound: TryoutRound,
+  RoundResult: RoundResult
 };

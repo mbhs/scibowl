@@ -8,7 +8,7 @@ const parse = require('csv-parse/lib/sync');
 const fs = require('fs');
 
 const START = new Date('September 17, 2017 10:00:00');
-const END = new Date('September 19, 2017 23:59:00');
+const END = new Date('November 19, 2017 23:59:00');
 
 fs.readFile('tryout_questions.csv', (err, data) => {
   const entries = parse(data);
