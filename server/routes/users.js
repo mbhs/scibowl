@@ -119,7 +119,6 @@ router.get('/status', (req, res) => {
 
 });
 
-
 router.post('/logout', (req, res) => {
 
   if (req.user) {

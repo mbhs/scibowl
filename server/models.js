@@ -24,22 +24,24 @@ const userSchema = new Schema({
     last    : { type: String, required: true },
   },
   email     : { type: String, required: true },
-  role      : { type: Number, required: true, min: roles.public, max: roles.deity, default: roles.public },
+  admin     : { type: Boolean, default: false },
   year      : { type: Number, required: true }
 });
 
-/** Connect to the passport. */
+/** Connect to passport. */
 userSchema.plugin(passportLocalMongoose);
 
 const User = mongoose.model('User', userSchema);
 
-const schoolSchema = new Schema({
+const teamSchema = new Schema({
   name      : { type: String },
   students  : [{
-    user    : { type: Types.ObjectId, ref: 'User' }
-  }]
+    user    : { type: Types.ObjectId, ref: 'User' },
+    role    : { type: Number, min: roles.student, max: roles.deity, default: roles.student }
+  }],
+  join_code : { type: String }
 });
-const School = mongoose.model('School', schoolSchema);
+const Team = mongoose.model('Team', teamSchema);
 
 
 /** Shared characteristics of all Science Bowl questions.
@@ -113,7 +115,8 @@ const ShortAnswerQuestion = Question.discriminator('ShortAnswerQuestion', shortA
 
 // Rounds
 const roundSchema = new Schema({
-  owner        : { type: Types.ObjectId, ref: 'User' },
+  owner        : { type: Types.ObjectId, ref: 'Team' },
+  author      : { type: Types.ObjectId, ref: 'User '},
   source       : { type: String },
   title        : { type: String },
   questions    : [{
@@ -166,6 +169,7 @@ const PlayedRound = RoundResult.discriminator('PlayedRound', playedRoundSchema);
 module.exports = {
   roles: roles,
   User: User,
+  Team: Team,
   Question: Question,
   MultipleChoiceQuestion: MultipleChoiceQuestion,
   ShortAnswerQuestion: ShortAnswerQuestion,

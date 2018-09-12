@@ -7,6 +7,9 @@ router.use('/questions', questions);
 const user = require('./routes/users');
 router.use('/users', user);
 
+const team = require('./routes/teams');
+router.use('/teams', team);
+
 const tryout = require('./routes/tryout');
 router.use('/tryout', tryout);
 
