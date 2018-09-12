@@ -32,7 +32,7 @@ const appRoutes: Routes = [
     canActivate: [AuthService], data: { role: 'public' }},
   { path: 'question/:id', component: QuestionViewComponent,
     canActivate: [AuthService]},
-  { path: 'tryout', component: TryoutComponent,
+  { path: 'tryout/:id', component: TryoutComponent,
     canActivate: [AuthService], data: { role: 'student' }},
   { path: 'user/login', component: UserLoginComponent },
   { path: 'user/profile', component: UserProfileComponent,

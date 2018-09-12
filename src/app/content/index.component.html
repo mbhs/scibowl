@@ -5,7 +5,7 @@
   </div>
 </div>
 
-<div *ngIf="status.user && !status.team" class="card">
+<div *ngIf="status?.user && !status?.team" class="card">
   <div class="card-body">
     <h4 class="card-title">No Team</h4>
     Hey there, {{ status.user.name.first }}, it looks like you're not in a team! Enter your school team's join code here to join an existing team:
@@ -36,7 +36,7 @@
   </div>
 </div>
 
-<div *ngIf="status?.team" class="card">
+<div *ngIf="status?.team" class="card mb-4">
   <div class="card-body">
     <h4 class="card-title">Welcome, {{ status.user.name.first }}!</h4>
 
@@ -44,35 +44,22 @@
   </div>
 </div>
 
-<!--<div *ngIf="tryout" class="card text-white bg-dark mb-3">-->
-  <!--<div class="card-body">-->
-    <!--<h4 class="card-title">Tryouts Are Live!</h4>-->
+<div *ngIf="tryouts && tryouts.length > 0" class="card text-white bg-dark">
+  <div class="card-body">
+    <h4 class="card-title">Tryouts Are Live!</h4>
 
-    <!--<p class="card-text">-->
-      <!--This year's Science Bowl tryout is active from {{ tryout.start | date:'fullDate' }} at {{ tryout.start | date:'shortTime' }} to {{ tryout.end | date:'fullDate' }} at {{ tryout.end | date:'shortTime' }}. We've worked hard to put together a diverse array of questions to find the best potential Science Bowlers in all of Blair; we wish you the best of luck!-->
-    <!--</p>-->
+    The following tryouts are active for <strong>{{ status.team.name }}</strong>:
 
-    <!--<p class="card-text">-->
-      <!--<ng-container *ngIf="!status.user">-->
-        <!--<a class="btn btn-primary mr-2" routerLink="/user/register">Register <i class="fas fa-user-plus"></i></a>-->
-        <!--<a class="btn btn-primary" routerLink="/user/login">Login <i class="fas fa-user"></i></a>-->
-      <!--</ng-container>-->
-      <!--<a *ngIf="status.user" class="btn btn-primary" routerLink="/tryout">Tryout! <i class="fas fa-arrow-right"></i></a>-->
-    <!--</p>-->
-  <!--</div>-->
-<!--</div>-->
+    <ng-container *ngFor="let tryout of tryouts;">
+      <h5>{{ tryout.title }}</h5>
 
-<!--<div class="row">-->
-  <!--<div class="col-md-4">-->
-    <!--<h2>Tradition of Excellence</h2>-->
-    <!--<p>Consistently winning the Maryland Regional Science Bowl almost every year since it began participating, the Blair Science Bowl Team succeeded in taking the National Science Bowl championship in 2016 and 1999. It placed second in 2011 and seventh in 2017.</p>-->
-  <!--</div>-->
-  <!--<div class="col-md-4">-->
-    <!--<h2>Three Teams</h2>-->
-    <!--<p>There are three Science Bowl teams at Blair. A Team trains its hardest to compete at the national level, consisting of seniors, juniors, and occasionally sophomores; B Team's juniors and sophomores replenish A Team's ranks as seniors graduate; C Team is reserved only for freshmen, forming the next generation of Blair Science Bowl. All three participate annually at the Maryland Regional Science Bowl.</p>-->
-  <!--</div>-->
-  <!--<div class="col-md-4">-->
-    <!--<h2>Academic Rigor</h2>-->
-    <!--<p>Blair Science Bowlers, as they're known colloquially, study hard throughout the year to participate for the Regional and National competitions, exploring the depths of the six subjects of Science Bowl: chemistry, biology, mathematics, physics, earth and space science, and energy.</p>-->
-  <!--</div>-->
-<!--</div>-->
+      <p>
+        Active from: {{ tryout.start | date:'fullDate' }} at {{ tryout.start | date:'shortTime' }} to {{ tryout.end | date:'fullDate' }} at {{ tryout.end | date:'shortTime' }}.
+
+        <br/><br/><a class="btn btn-primary" routerLink="/tryout/{{ tryout._id }}">Tryout! <i class="fas fa-arrow-right"></i></a>
+      </p>
+    </ng-container>
+
+    <p class="mb-0">We've worked hard to put together a diverse array of questions to find the best potential Science Bowlers; we wish you the best of luck!</p>
+  </div>
+</div>

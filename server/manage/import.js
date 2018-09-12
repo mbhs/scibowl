@@ -12,26 +12,28 @@ const START = new Date('September 11, 2018 0:00:00');
 const END = new Date('November 19, 2018 23:59:00');
 
 fs.readFile('tryout_questions.csv', (err, data) => {
-  const entries = parse(data);
-  const tryout = models.Tryout({ name: NAME, start: START, end: END, questions: [] });
+  models.Team.findOne({ name: "MBHS"}).then(team => {
+    const entries = parse(data);
+    const tryout = models.Tryout({ owner: team, title: NAME, start: START, end: END, questions: []});
 
-  for (const entry of entries) {
-    const question = new models.MultipleChoiceQuestion({
-      subject: entry[0],
-      text: entry[1],
-      difficulty: entry[7],
-      choices: [
-        { choice: 'W', text: entry[2] },
-        { choice: 'X', text: entry[3] },
-        { choice: 'Y', text: entry[4] },
-        { choice: 'Z', text: entry[5] }
-      ],
-      answer: entry[6]
-    });
-    question.save();
+    for (const entry of entries) {
+      const question = new models.MultipleChoiceQuestion({
+        subject: entry[0],
+        text: entry[1],
+        difficulty: entry[7],
+        choices: [
+          {choice: 'W', text: entry[2]},
+          {choice: 'X', text: entry[3]},
+          {choice: 'Y', text: entry[4]},
+          {choice: 'Z', text: entry[5]}
+        ],
+        answer: entry[6]
+      });
+      question.save();
 
-    tryout.questions.push({ question: question, time: +entry[8] });
-  }
+      tryout.questions.push({question: question, time: +entry[8]});
+    }
 
-  tryout.save().catch(err => console.log(err));
+    tryout.save().catch(err => console.log(err));
+  })
 });

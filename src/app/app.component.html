@@ -11,8 +11,8 @@
     <ul class="navbar-nav" *ngIf="status.user">
       <li class="nav-item text-muted">
         <a class="nav-link" routerLink="/user/profile">
-          <i class="fas fa-user" *ngIf="status.user.role == config.ROLES.user"></i>
-          <i class="fas fa-trophy" *ngIf="status.user.role == config.ROLES.captain"></i>
+          <i class="fas fa-user" *ngIf="status.user.role == status.ROLES.user"></i>
+          <i class="fas fa-trophy" *ngIf="status.user.role == status.ROLES.captain"></i>
           {{ status.user.name.first }} {{ status.user.name.last }}
         </a>
       </li>

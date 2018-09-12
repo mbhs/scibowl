@@ -10,7 +10,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
   templateUrl: './index.component.html'
 })
 export class IndexComponent implements OnInit {
-  tryout = null;
+  tryouts = null;
   joinFailed = false;
   joinForm: FormGroup;
   newTeamForm: FormGroup;
@@ -25,9 +25,7 @@ export class IndexComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.http.get('/api/tryout/', { observe: 'response' }).subscribe(res => {
-      if (res.status === 200) { this.tryout = res.body; }
-    });
+    this.http.get('/api/tryout/', { observe: 'response' }).subscribe(res => this.tryouts = res.body);
   }
 
   join() {

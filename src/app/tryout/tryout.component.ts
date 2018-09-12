@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import 'rxjs/add/operator/map';
 
 import { Config } from '../config.service';
+import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -31,10 +32,12 @@ export class TryoutComponent implements OnInit, AfterViewInit {
 
   tryout = null;
 
-  constructor(private http: HttpClient, public config: Config) { }
+  constructor(private http: HttpClient, public config: Config, private route: ActivatedRoute) { }
 
   ngOnInit() {
-    this.http.get('/api/tryout/').subscribe(res => this.tryout = res);
+    this.route.params.subscribe(params => {
+      this.http.get(`/api/tryout/${params['id']}`).subscribe(tryout => this.tryout = tryout);
+    });
   }
 
   ngAfterViewInit() {
