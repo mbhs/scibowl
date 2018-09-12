@@ -11,16 +11,9 @@ const middleware = require('./middleware');
 const router = express.Router();
 
 
-router.get('/', middleware.assertUserAuthenticated, (req, res) =>
-  models.Team.findOne({ students: { user: req.user._id }}).then(team => {
-    if (team) res.status(200).send(utils.mask(team, ["_id"]));
-    else res.status(200).send();
-  })
-);
-
 router.post('/new', middleware.assertUserAuthenticated, (req, res) =>
   {
-    const team = models.Team({ name: req.params.name,
+    const team = models.Team({ name: req.body['name'],
       students: { user: req.user._id, role: models.roles.captain } });
     team.save().then(() => res.status(200).send());
   }
@@ -34,9 +27,10 @@ router.post('/:id/code', middleware.assertHasRole(models.roles.captain), (req, r
 
 
 router.post('/join', middleware.assertUserAuthenticated, (req, res) =>
-  models.Team.findOne({ code: req.params.code }).then(team => {
+  models.Team.findOne({ code: req.body['code'] }).then(team => {
+    if (!team) { res.status(404).send(); return }
     team.students.push({ user: req.user._id, role: models.roles.student });
-    team.save().then(() => res.status(404).send());
+    team.save().then(() => res.send());
   }, () => res.status())
 );
 

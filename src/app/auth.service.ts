@@ -10,6 +10,7 @@ export const ROLES = { public: 0, student: 1, member: 2, captain: 3, deity: 4 };
 @Injectable()
 export class AuthService implements CanActivate {
   user: any;
+  team: any;
 
   constructor(private http: HttpClient, private router: Router) {
     this.reload().then(() => { return; });
@@ -26,7 +27,13 @@ export class AuthService implements CanActivate {
 
   reload(): Promise<any> {
     return this.http.get('/api/users/status').toPromise()
-      .then(user => this.user = user, () => this.user = null);
+      .then(status => {
+        this.user = status.user;
+        this.team = status.team;
+      }, () => {
+        this.user = null;
+        this.team = null;
+      });
   }
 
   canActivate(route: ActivatedRouteSnapshot): boolean {

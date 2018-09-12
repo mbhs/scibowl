@@ -1,22 +1,35 @@
 models = require('../models');
 
+function assertUserAuthenticated(req, res, next) {
+  if (!req.user) {
+    res.status(401).send({reason: "authentication required"});
+    return;
+  }
+  return models.Team.findOne({ students: { $elemMatch: { user: req.user._id } } }).then(team => {
+    req.team = team;
+    for (let student of req.team.students) {
+      if (student.user.equals(req.user._id)) req.team.user_role = student.role;
+    }
+    next();
+  }, next);
+}
+
 /** Check whether a particular user has permissions within a particular team to do a particular action. */
 function assertHasRole(role) {
-  function wrapper(req, res, next) {
-    if (role > models.roles.public && !req.user) res.status(401).send();
-    return models.Team.findOne({ _id: req.params.id }).then(team => {
-      req.team = team;
-      let authorized = false;
-      for (let student of team.students) {
-        if (student.user === req.user._id && student.role >= role) authorized = true;
+  return function wrapper(req, res, next) {
+    const authenticated = assertUserAuthenticated(req, res, () => { });
+    if (!authenticated) return;
+    authenticated.then(() => {
+      if (role === models.roles.public) next();
+      else {
+        if (req.user.admin || req.team.user_role >= role) next();
+        else res.status(401).send({reason: "insufficient permissions"});
       }
-      if (authorized) next();
-      else res.status(401).send();
     });
-  }
+  };
 }
 
 module.exports.assertHasRole = assertHasRole;
 module.exports.assertUserAuthenticated = assertHasRole(models.roles.public);
-module.exports.assertStudent = assertHasRole(models.roles.student); // TODO: Properly implement permissions
+module.exports.assertStudent = assertHasRole(models.roles.student);
 module.exports.assertAdmin = assertHasRole(models.roles.captain);

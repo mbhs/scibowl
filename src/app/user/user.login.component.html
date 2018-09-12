@@ -2,7 +2,7 @@
 
 <form [formGroup]="loginForm" (submit)="submit()">
   <div *ngIf="failed" class="alert alert-danger" role="alert">
-    Login failed. Incorrect username and/or password.
+    <i class="fas fa-exclamation-circle"></i> <strong>Error.</strong> Login failed. Incorrect username and/or password.
   </div>
 
   <div class="form-group row">

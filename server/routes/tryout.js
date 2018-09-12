@@ -32,7 +32,7 @@ function assertHasTryoutResult(req, res, next) {
 
 
 /** Get the active tryout. */
-router.get('/', (req, res) =>
+router.get('/', middleware.assertHasRole(models.roles.student), (req, res) =>
   getCurrentTryout(req).then(
     tryout => {
       const masked = utils.mask(tryout, ['start', 'end', '_id']);
@@ -51,7 +51,7 @@ router.get('/', (req, res) =>
  * model. After that, the next question the user should complete is
  * determined and sent.
  */
-router.post('/:id/next', middleware.assertUserAuthenticated, assertHasTryoutResult, (req, res) => {
+router.post('/:id/next', middleware.assertHasRole(models.roles.student), assertHasTryoutResult, (req, res) => {
   getCurrentTryout(req).then(tryout =>
 
     models.TryoutResult.findOne({ user: req.user, round: tryout }).then(tryoutResult => {
@@ -100,7 +100,7 @@ router.post('/:id/next', middleware.assertUserAuthenticated, assertHasTryoutResu
 
 
 /** Skip the current question. */
-router.post('/:id/skip', (req, res) => {
+router.post('/:id/skip', middleware.assertHasRole(models.roles.student), assertHasTryoutResult, (req, res) => {
   getCurrentTryout(req).then((tryout) => {
     models.TryoutResult.findOne({ user: req.user, round: tryout }).then(tryoutResult => {
 
@@ -125,7 +125,7 @@ router.post('/:id/skip', (req, res) => {
 
 
 /** Submit the answer to the current question. */
-router.post('/:id/submit', middleware.assertUserAuthenticated, (req, res) => {
+router.post('/:id/submit', middleware.assertHasRole(models.roles.student), assertHasTryoutResult, (req, res) => {
   getCurrentTryout(req).then((tryout) => {
     models.TryoutResult.findOne({ user: req.user, round: tryout }).populate('updates.question').then(tryoutResult => {
 

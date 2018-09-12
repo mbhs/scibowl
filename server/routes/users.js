@@ -2,8 +2,10 @@ const express = require('express');
 const passport = require('passport');
 const console = require('console');
 
+const utils = require('../utils');
 const models = require('../models');
 const validate = require('../validate');
+const middleware = require('./middleware');
 
 const router = express.Router();
 
@@ -105,29 +107,18 @@ router.post('/login', (req, res) => {
 });
 
 
-router.get('/status', (req, res) => {
+router.get('/status', middleware.assertUserAuthenticated, (req, res) => {
 
-  if (req.user) res.status(200).send({
-    username: req.user.username,
-    name: {
-      first: req.user.name.first,
-      last: req.user.name.last
-    },
-    role: req.user.role
-  });
-  else res.status(401).send({});
+  let result = {"user": utils.mask(req.user, ["username", "name"])};
+  if (req.team) result["team"] = utils.mask(req.team, ["name", "user_role"]);
+  res.status(200).send(result);
 
 });
 
-router.post('/logout', (req, res) => {
+router.post('/logout', middleware.assertUserAuthenticated, (req, res) => {
 
-  if (req.user) {
     req.logout();
-    res.status(200).send({});
-    return;
-  }
-
-  res.status(400).send({})
+    res.status(200).send();
 
 });
 
