@@ -6,9 +6,11 @@ function assertUserAuthenticated(req, res, next) {
     return;
   }
   return models.Team.findOne({ students: { $elemMatch: { user: req.user._id } } }).then(team => {
-    req.team = team;
-    for (let student of req.team.students) {
-      if (student.user.equals(req.user._id)) req.team.user_role = student.role;
+    if (team) {
+      req.team = team;
+      for (let student of req.team.students) {
+        if (student.user.equals(req.user._id)) req.team.user_role = student.role;
+      }
     }
     next();
   }, next);

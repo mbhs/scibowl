@@ -1,10 +1,13 @@
-<h1>Control Panel</h1>
+<h1>Control Panel: {{ auth.team.name }}</h1>
 
 <p>Ahoy there, matey! This page is for captains to manage the team.</p>
+
+<p>New students can join the team <b>{{ auth.team.name }}</b> by entering this join code: {{ joinCode }}.</p>
 
 <div class="row">
   <div class="col-sm-6">
     <h3>Tryouts</h3>
+    <a class="btn btn-info btn-block" (click)="newCode()" href="javascript:void(0)">Regenerate Join Code <i class="fas fa-code"></i></a>
     <a class="btn btn-info btn-block" routerLink="/admin/tryouts">See Tryout Results <i class="fas fa-eye"></i></a>
   </div>
   <div class="col-sm-6">

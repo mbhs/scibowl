@@ -20,14 +20,19 @@ router.post('/new', middleware.assertUserAuthenticated, (req, res) =>
 );
 
 
+router.get('/:id/code', middleware.assertHasRole(models.roles.captain), (req, res) => {
+  res.send({ code: req.team.join_code });
+});
+
+
 router.post('/:id/code', middleware.assertHasRole(models.roles.captain), (req, res) => {
-  req.team.code = Math.random().toString(36).replace("0.", "");
-  req.team.save().then(() => res.status(200).send());
+  req.team.join_code = Math.random().toString(36).replace("0.", "");
+  req.team.save().then(() => res.status(200).send({ code: req.team.join_code }));
 });
 
 
 router.post('/join', middleware.assertUserAuthenticated, (req, res) =>
-  models.Team.findOne({ code: req.body['code'] }).then(team => {
+  models.Team.findOne({ join_code: req.body['code'] }).then(team => {
     if (!team) { res.status(404).send(); return }
     team.students.push({ user: req.user._id, role: models.roles.student });
     team.save().then(() => res.send());

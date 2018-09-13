@@ -25,7 +25,7 @@ export class IndexComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.http.get('/api/tryout/', { observe: 'response' }).subscribe(res => this.tryouts = res.body);
+    this.http.get('/api/tryout/').subscribe(res => this.tryouts = res);
   }
 
   join() {

@@ -11,9 +11,9 @@
     <ul class="navbar-nav" *ngIf="status.user">
       <li class="nav-item text-muted">
         <a class="nav-link" routerLink="/user/profile">
-          <i class="far fa-user-circle" *ngIf="status.team.user_role == status.ROLES.student"></i>
-          <i class="fas fa-user" *ngIf="status.team.user_role == status.ROLES.member"></i>
-          <i class="fas fa-user-astronaut" *ngIf="status.team.user_role >= status.ROLES.captain"></i>
+          <i class="far fa-user-circle" *ngIf="status.team?.user_role == status.ROLES.student"></i>
+          <i class="fas fa-user" *ngIf="status.team?.user_role == status.ROLES.member"></i>
+          <i class="fas fa-user-astronaut" *ngIf="status.team?.user_role >= status.ROLES.captain"></i>
           {{ status.user.name.first }} {{ status.user.name.last }}
         </a>
       </li>
