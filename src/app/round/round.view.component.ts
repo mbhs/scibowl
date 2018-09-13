@@ -50,7 +50,8 @@ export class RoundViewComponent implements OnInit {
       source: this.roundForm.controls['source'].value,
       kind: this.roundForm.controls['tryout'].value ? "Tryout" : "",
       start: this.roundForm.controls['source'].value,
-      end: this.roundForm.controls['end'].value
+      end: this.roundForm.controls['end'].value,
+      questions: this.questions
     };
 
     if (this.newRound) {
@@ -60,5 +61,13 @@ export class RoundViewComponent implements OnInit {
     } else {
       this.http.post(`/api/rounds/${this.roundId}`, data).subscribe(() => this.editing = false);
     }
+  }
+  removeQuestion(i) {
+    this.questions.splice(i, 1);
+  }
+  swapAt(i) {
+    let temp = this.questions[i];
+    this.questions[i] = this.questions[i + 1];
+    this.questions[i + 1] = temp;
   }
 }

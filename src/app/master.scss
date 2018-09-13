@@ -48,3 +48,9 @@ input[type=checkbox].subject-button {
 .progress-bar {
   transition: width .1s;
 }
+
+a.disabled {
+  color: gray;
+  pointer-events: none;
+  cursor: default;
+}

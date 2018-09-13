@@ -35,7 +35,7 @@ router.post('/:id', middleware.assertAdmin, (req, res) => {
 
   // Find and update the question
   models.Question.findById(req.params.id).then(question => {
-    question.update(req.body);
+    question.update(req.body)
     question.save().then(() => res.send());
   }, () => res.status(404).send({ reason: "no question found" }));
 

@@ -39,7 +39,9 @@ router.get('/:id', middleware.assertHasRole(models.roles.student), (req, res) =>
 router.post('/new', middleware.assertAdmin, (req, res) => {
 
   let round = new models.Round();
-  round.update(req.body);
+  for (let prop in req.body) {
+    if (req.body.hasOwnProperty(prop)) round[prop] = req.body[prop];
+  }
   round.save().then(() => res.send({ id: round._id }), () => res.status(400).send());
 
 });
@@ -49,8 +51,10 @@ router.post('/:id', middleware.assertAdmin, (req, res) => {
 
   // Find and update the question
   models.Round.findById(req.params.id).then(round => {
-    round.update(req.body);
-    round.save().then(() => res.send({id: round._id}), () => res.status(400).send());
+    for (let prop in req.body) {
+      if (req.body.hasOwnProperty(prop)) round[prop] = req.body[prop];
+    }
+    round.save().then(() => res.send(), () => res.status(400).send());
   }, () => res.status(404).send({ reason: "no round found" }));
 
 });
