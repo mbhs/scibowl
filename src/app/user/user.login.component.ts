@@ -19,7 +19,7 @@ export class UserLoginComponent {
       username: ['', Validators.required],
       password: ['', Validators.required]
     });
-    this.route.params.subscribe(params => {
+    this.route.queryParams.subscribe(params => {
       if (params['next']) this.nextLink = params['next'];
     });
   }
@@ -27,7 +27,6 @@ export class UserLoginComponent {
   submit() {
     this.status.login(this.loginForm.controls['username'].value, this.loginForm.controls['password'].value).then(
       () => {
-        console.log(this.nextLink);
         this.router.navigateByUrl(this.nextLink);
       }, () => {
         this.failed = true;

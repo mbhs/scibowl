@@ -1,7 +1,18 @@
 <div class="jumbotron">
   <div class="container">
     <h1 class="display-2">Science Bowl</h1>
-    <p>Science Bowl.</p>
+    <p>Science Bowl. Your friendly neighborhood science trivia competition.</p>
+  </div>
+</div>
+
+<div *ngIf="!status?.user" class="card">
+  <div class="card-body">
+    <h4 class="card-title">Looks like you're new here...</h4>
+
+    <p>Tossup: Short answer. What's the first step to becoming a Science Bowl legend? Answer: SIGNING UP or LOGGING IN.</p>
+
+    <a class="btn btn-primary mr-3" routerLink="/user/register">Register <i class="fa fa-user-plus"></i></a>
+    <a class="btn btn-primary" routerLink="/user/login">Login <i class="fa fa-user"></i></a>
   </div>
 </div>
 
@@ -40,11 +51,11 @@
   <div class="card-body">
     <h4 class="card-title">Welcome, {{ status.user.name.first }}!</h4>
 
-    You are a {{ status.team.user_role }} of team <strong>{{ status.team.name }}</strong>. Happy buzzing!
+    You are a {{ status.ROLES_DISPLAY[status.team.user_role] }} of team <strong>{{ status.team.name }}</strong>. Happy buzzing!
   </div>
 </div>
 
-<div *ngIf="tryouts && tryouts.length > 0" class="card text-white bg-dark">
+<div *ngIf="status.team && tryouts && tryouts.length > 0" class="card text-white bg-dark">
   <div class="card-body">
     <h4 class="card-title">Tryouts Are Live!</h4>
 

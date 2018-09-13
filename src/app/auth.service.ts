@@ -11,6 +11,7 @@ export class AuthService implements CanActivate {
   user: any;
   team: any;
   ROLES = { public: 0, student: 1, member: 2, captain: 3, coach: 4 };
+  ROLES_DISPLAY = { 0: "Public", 1: "Student", 2: "Member", 3: "Captain", 4: "Coach" };
 
 
   constructor(private http: HttpClient, private router: Router) {
