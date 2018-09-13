@@ -23,22 +23,21 @@ import { AuthService } from './auth.service';
 
 const appRoutes: Routes = [
   { path: 'admin/tryouts', component: TryoutResultsComponent,
-    canActivate: [AuthService], data: { role: 'captain' }},
+    canActivate: [AuthService], data: { role: 'captain' } },
   { path: 'admin', component: ControlPanelComponent,
-    canActivate: [AuthService], data: { role: 'captain' }},
+    canActivate: [AuthService], data: { role: 'captain' } },
   { path: '', component: IndexComponent },
   { path: 'resources', component: ResourcesComponent },
   { path: 'question/search', component: QuestionSearchComponent,
-    canActivate: [AuthService], data: { role: 'public' }},
+    canActivate: [AuthService], data: { role: 'public' } },
   { path: 'question/:id', component: QuestionViewComponent,
     canActivate: [AuthService]},
   { path: 'tryout/:id', component: TryoutComponent,
-    canActivate: [AuthService], data: { role: 'student' }},
+    canActivate: [AuthService], data: { role: 'student' } },
   { path: 'user/login', component: UserLoginComponent },
   { path: 'user/profile', component: UserProfileComponent,
-    canActivate: [AuthService], data: { role: 'public' }},
-  { path: 'user/register', component: UserRegisterComponent,
-    canActivate: [AuthService], data: { role: 'public' }}
+    canActivate: [AuthService], data: { role: 'public' } },
+  { path: 'user/register', component: UserRegisterComponent }
 ];
 
 @NgModule({

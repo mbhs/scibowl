@@ -158,7 +158,21 @@ const RoundResult = mongoose.model('RoundResult', roundResultSchema);
 const tryoutResultSchema = new Schema({
   user    : { type: Types.ObjectId, ref: 'User' }
 });
+tryoutResultSchema.methods.score = function(correct, incorrect) {
+  const scores = { total : { score: 0, answered: 0 } };
+  // Add up the score for each subject
+  for (let subject of game.SUBJECTS) {
+    const subjectResults = this.updates.filter(update => update.question.subject === subject && update.status !== 'skipped');
+    let subjectScore = subjectResults.filter(update => update.status === 'correct').length * correct +
+      subjectResults.filter(question => question.status === 'incorrect').length * incorrect;
+    scores[subject] = { score: subjectScore, answered: subjectResults.length };
+    scores.total.score += subjectScore;
+    scores.total.answered += subjectResults.length;
+  }
+  return scores;
+};
 const TryoutResult = RoundResult.discriminator('TryoutResult', tryoutResultSchema);
+
 
 const playedRoundSchema = new Schema({
   teams       : [[{ type: Types.ObjectId, ref: 'User', required: true }]]

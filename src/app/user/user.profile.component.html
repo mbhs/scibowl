@@ -1,11 +1,13 @@
 <h1>My Profile</h1>
 
-<p>Welcome, {{ status.user.name.first }} {{ status.user.name.last }}! Here you can see your stats, tryout results, and manage your Science Bowl account at Blair!</p>
+<p>Welcome, {{ status.user.name.first }} {{ status.user.name.last }}! Here you can see your stats, tryout results, and manage your Science Bowl account!</p>
 
-<div *ngIf="status.user.role === config.ROLES.captain" class="card">
+
+<div *ngIf="status.team.user_role == status.ROLES.captain" class="card">
   <div class="card-body">
     <h4 class="card-title">Aye, Aye, Captain!</h4>
-    <p class="card-text">It looks like you're a Science Bowl captain! Hop on over to the Control Panel to manage the team.</p>
+    <p class="card-text">It looks like you're a Science Bowl captain for the team <strong>{{ status.team.name }}</strong>!
+      Hop on over to the Control Panel to manage the team.</p>
     <a class="btn btn-primary btn-block" routerLink="/admin">Captain's Control Panel <i class="fas fa-trophy"></i></a>
   </div>
 </div>

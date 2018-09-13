@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/toPromise';
-import {ActivatedRouteSnapshot, CanActivate, Router} from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
 
 
 
@@ -37,16 +37,18 @@ export class AuthService implements CanActivate {
       });
   }
 
-  canActivate(route: ActivatedRouteSnapshot): boolean {
-    let authorized = true;
-    if (!this.user) {
-      authorized = false;
-    } else if (route.data.expectedRole) {
-      authorized = this.team.role >= this.ROLES[route.data.role];
-    }
-    if (!authorized) {
-      this.router.navigate(['user/login']);
-    }
-    return authorized;
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
+    return this.reload().then(() => {
+      let authorized = true;
+      if (!this.user) {
+        authorized = false;
+      } else if (route.data.expectedRole) {
+        authorized = this.team.role >= this.ROLES[route.data.role];
+      }
+      if (!authorized) {
+        this.router.navigate(['user/login'], { queryParams: { next: state.url }});
+      }
+      return authorized;
+    });
   }
 }
