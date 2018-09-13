@@ -21,6 +21,7 @@ import { Config } from './config.service';
 import { AuthService } from './auth.service';
 import {RoundViewComponent} from "./round/round.view.component";
 import {TruncatePipe} from "./utils/truncate.pipe";
+import {YesNoPipe} from "./utils/yesno.pipe";
 
 const appRoutes: Routes = [
   { path: 'admin/tryouts', component: TryoutResultsComponent,
@@ -55,7 +56,8 @@ const appRoutes: Routes = [
     ResourcesComponent,
     RoundViewComponent,
     RoundListComponent,
-    TruncatePipe
+    TruncatePipe,
+    YesNoPipe
   ],
   imports: [
     BrowserModule,

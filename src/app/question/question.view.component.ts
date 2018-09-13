@@ -28,7 +28,8 @@ export class QuestionViewComponent implements OnInit {
       subject: ['', Validators.required],
       kind: [''],
       choiceAnswer: [''],
-      shortAnswer: ['']
+      shortAnswer: [''],
+      source: ['']
     };
 
     for (const choice of config.CHOICES) {
@@ -48,9 +49,10 @@ export class QuestionViewComponent implements OnInit {
         this.newQuestion = true;
       } else {
         this.http.get(`/api/questions/${this.questionId}`).subscribe(res => {
-          this.questionForm.controls.text.setValue(res['text']);
-          this.questionForm.controls.subject.setValue(res['subject']);
-          this.questionForm.controls.kind.setValue(res['kind']);
+          this.questionForm.controls['text'].setValue(res['text']);
+          this.questionForm.controls['subject'].setValue(res['subject']);
+          this.questionForm.controls['kind'].setValue(res['kind']);
+          this.questionForm.controls['source'].setValue(res['source']);
           if (res['kind'] === 'MultipleChoiceQuestion') {
             this.questionForm.controls.choiceAnswer.setValue(res['answer']);
             for (const choice of res['choices']) {
@@ -68,7 +70,8 @@ export class QuestionViewComponent implements OnInit {
     const data = {
       text: this.questionForm.controls['text'].value,
       subject: this.questionForm.controls['subject'].value,
-      kind: this.questionForm.controls['kind'].value
+      kind: this.questionForm.controls['kind'].value,
+      source: this.questionForm.controls['source'].value
     };
 
     if (this.questionForm.controls['kind'].value === 'MultipleChoice') {

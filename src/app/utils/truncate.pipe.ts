@@ -9,6 +9,6 @@ export class TruncatePipe implements PipeTransform {
     if (completeWords) {
       charLimit = str.substr(0, charLimit).lastIndexOf(' ');
     }
-    return str.substr(0, charLimit) + ellipsis;
+    return str.substr(0, charLimit) + ((str.length > charLimit) ? ellipsis : "");
   }
 }

@@ -1,5 +1,5 @@
 <div class="clearfix">
-  <h1 class="float-sm-left">Question</h1>
+  <h3 class="float-sm-left">Question</h3>
   <button type="button" class="btn btn-success float-sm-right" *ngIf="!editing" (click)="editing = true;">Edit <i class="fas fa-edit"></i></button>
 </div>
 <br/>
@@ -13,7 +13,11 @@
                 formControlName="text" rows="3"></textarea>
     </div>
     <div class="col-sm-10" *ngIf="!editing">
-      <p>{{ questionForm.controls['text'].value }}</p>
+      <div class="card">
+        <div class="card-body">
+          {{ questionForm.controls['text'].value }}
+        </div>
+      </div>
     </div>
   </div>
 
@@ -84,5 +88,17 @@
     </div>
   </div>
 
-  <button type="submit" class="btn btn-primary" *ngIf="editing">Save</button>
+  <div class="form-group row">
+    <label class="col-sm-2" for="questionSource"><strong>Source</strong></label>
+    <div class="col-sm-10" *ngIf="editing">
+      <input type="text" class="form-control" id="questionSource"
+             placeholder="Campbell and Reece OR Sample Round Set 6, Round 13"
+             formControlName="source">
+    </div>
+    <div class="col-sm-10" *ngIf="!editing">
+      <p>{{ questionForm.controls['source'].value | yesno:"(none)" }}</p>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary" *ngIf="editing">Save Question <i class="fas fa-save"></i></button>
 </form>

@@ -1,4 +1,64 @@
-<h3>Round Editor</h3>
+<div class="clearfix">
+  <h1 class="float-sm-left">Round</h1>
+  <button type="button" class="btn btn-success float-sm-right" *ngIf="!editing" (click)="editing = true;">Edit <i class="fas fa-edit"></i></button>
+</div>
+
+<h4>Details</h4>
+
+<form [formGroup]="roundForm" (ngSubmit)="submit()" class="mb-4">
+  <div class="form-group row">
+    <label class="col-sm-2" for="roundTitle"><strong>Title</strong></label>
+    <div class="col-sm-10" *ngIf="editing">
+      <input type="text" class="form-control" id="roundTitle"
+                placeholder="Friday Practice Round"
+                formControlName="title">
+    </div>
+    <div class="col-sm-10" *ngIf="!editing">
+      <p>{{ roundForm.controls['title'].value }}</p>
+    </div>
+  </div>
+
+  <div class="form-group row" *ngIf="auth.team.user_role >= auth.ROLES.captain">
+    <ng-container *ngIf="editing">
+      <div class="col-sm-2"></div>
+      <div class="col-sm-10 custom-control custom-checkbox">
+        <input type="checkbox" class="custom-control-input" formControlName="tryout" id="roundTryout">
+        <label class="custom-control-label" for="roundTryout">Tryout?</label>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!editing && roundForm.controls['tryout'].value">
+      This round is a tryout round.
+    </ng-container>
+  </div>
+
+  <ng-container *ngIf="roundForm.controls['tryout'].value">
+    <div class="form-group row">
+      <label class="col-sm-2" for="tryoutStart"><strong>Start Date</strong></label>
+      <div class="col-sm-10" *ngIf="editing">
+        <input type="datetime-local" class="form-control" id="tryoutStart"
+               formControlName="start">
+      </div>
+      <div class="col-sm-10" *ngIf="!editing">
+        <p>{{ roundForm.controls['start'].value | date:'medium' }}</p>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label class="col-sm-2" for="tryoutStart"><strong>End Date</strong></label>
+      <div class="col-sm-10" *ngIf="editing">
+        <input type="datetime-local" class="form-control" id="tryoutEnd"
+               formControlName="end">
+      </div>
+      <div class="col-sm-10" *ngIf="!editing">
+        <p>{{ roundForm.controls['end'].value | date:'medium' }}</p>
+      </div>
+    </div>
+  </ng-container>
+
+  <button type="submit" class="btn btn-primary" *ngIf="editing">Save Round <i class="fas fa-save"></i></button>
+</form>
+
+<h4>Questions</h4>
 
 <ng-container *ngIf="questions">
   <table class="table">
@@ -15,8 +75,8 @@
     <tr *ngFor="let question of questions; let i = index">
       <td>{{ i }}</td>
       <td>{{ question.question.subject }}</td>
-      <td>{{ question.question.text | truncate: 50 }}</td>
-      <td><a class="btn btn-primary" routerLink="/question/{{ question.question._id }}"><i class="fas fa-edit"></i></a></td>
+      <td>{{ question.question.text | truncate: 100 }}</td>
+      <td><a class="btn btn-primary btn-small" routerLink="/question/{{ question.question._id }}"><i class="fas fa-pencil-alt"></i></a></td>
     </tr>
     </tbody>
   </table>

@@ -52,6 +52,7 @@ const Team = mongoose.model('Team', teamSchema);
 const questionSchema = new Schema({
   author       : { type: Types.ObjectId, ref: 'User' },
   text         : { type: String, required: true },
+  source       : { type: String },
   subject      : { type: String, enum: game.SUBJECTS, required: true },
   bonus        : { type: Types.ObjectId, ref: 'Question' },
   difficulty   : { type: Number },
@@ -117,7 +118,6 @@ const ShortAnswerQuestion = Question.discriminator('ShortAnswerQuestion', shortA
 const roundSchema = new Schema({
   owner        : { type: Types.ObjectId, ref: 'Team' },
   author       : { type: Types.ObjectId, ref: 'User' },
-  source       : { type: String },
   title        : { type: String },
   questions    : [{
     question   : { type: Types.ObjectId, ref: 'Question', required: true },
