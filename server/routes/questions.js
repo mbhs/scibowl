@@ -26,8 +26,7 @@ router.post('/new', middleware.assertStudent, (req, res) => {
 
   // Update and save the question
   question.update(questionData);
-  question.save(err => { if (err) throw err });
-  res.send({ id: question._id });
+  question.save().then(() => res.send({ id: question._id }));
 
 });
 
@@ -35,11 +34,10 @@ router.post('/new', middleware.assertStudent, (req, res) => {
 router.post('/:id', middleware.assertAdmin, (req, res) => {
 
   // Find and update the question
-  models.Question.findById(req.params.id, (err, question) => {
+  models.Question.findById(req.params.id).then(question => {
     question.update(req.body);
-    question.save(err => { if (err) throw err });
-    res.send({});
-  });
+    question.save().then(() => res.send());
+  }, () => res.status(404).send({ reason: "no question found" }));
 
 });
 
@@ -47,7 +45,7 @@ router.post('/:id', middleware.assertAdmin, (req, res) => {
 router.get('/:id', middleware.assertAdmin, (req, res) => {
 
   // Find and send the question
-  models.Question.findById(req.params.id, (err, question) => {
+  models.Question.findById(req.params.id).then(question => {
 
     if (!req.user && question.circulation > models.roles.public ||
         req.user && question.circulation > req.user.role) {
@@ -56,7 +54,7 @@ router.get('/:id', middleware.assertAdmin, (req, res) => {
     }
 
     res.send(question);
-  });
+  }, () => res.status(404).send({ reason: "no question found" }));
 
 });
 

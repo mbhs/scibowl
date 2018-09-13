@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {HttpClient} from "@angular/common/http";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {AuthService} from "../auth.service";
@@ -14,7 +14,8 @@ export class RoundViewComponent implements OnInit {
   roundForm: FormGroup;
   newRound = false;
   editing = false;
-  constructor (private route: ActivatedRoute, public http: HttpClient, private fb: FormBuilder, public auth: AuthService) {
+  constructor (private route: ActivatedRoute, public http: HttpClient, private fb: FormBuilder,
+               public auth: AuthService, private router: Router) {
     this.roundForm = fb.group({
       title: ['', Validators.required],
       source: ['', Validators.required],
@@ -42,5 +43,22 @@ export class RoundViewComponent implements OnInit {
         });
       }
     });
+  }
+  submit() {
+    const data = {
+      title: this.roundForm.controls['title'].value,
+      source: this.roundForm.controls['source'].value,
+      kind: this.roundForm.controls['tryout'].value ? "Tryout" : "",
+      start: this.roundForm.controls['source'].value,
+      end: this.roundForm.controls['end'].value
+    };
+
+    if (this.newRound) {
+      this.http.post('/api/rounds/new', data).subscribe(res => {
+        this.router.navigateByUrl(`/round/${res['id']}`);
+      });
+    } else {
+      this.http.post(`/api/rounds/${this.roundId}`, data).subscribe(() => this.editing = false);
+    }
   }
 }

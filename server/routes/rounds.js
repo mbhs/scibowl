@@ -34,4 +34,43 @@ router.get('/:id', middleware.assertHasRole(models.roles.student), (req, res) =>
     }, () => res.status(404).send({ reason: "no round found" })));
 
 
+// TODO: Make this work properly for tryouts
+
+router.post('/new', middleware.assertAdmin, (req, res) => {
+
+  let round = new models.Round();
+  round.update(req.body);
+  round.save().then(() => res.send({ id: round._id }), () => res.status(400).send());
+
+});
+
+
+router.post('/:id', middleware.assertAdmin, (req, res) => {
+
+  // Find and update the question
+  models.Round.findById(req.params.id).then(round => {
+    round.update(req.body);
+    round.save().then(() => res.send({id: round._id}), () => res.status(400).send());
+  }, () => res.status(404).send({ reason: "no round found" }));
+
+});
+
+
+router.get('/:id', middleware.assertAdmin, (req, res) => {
+
+  // Find and send the question
+  models.Question.findById(req.params.id).then(question => {
+
+    if (!req.user && question.circulation > models.roles.public ||
+      req.user && question.circulation > req.user.role) {
+      res.status(401).send({});
+      return;
+    }
+
+    res.send(question);
+  }, () => res.status(404).send({ reason: "no round found" }));
+
+});
+
+
 module.exports = router;
