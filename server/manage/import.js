@@ -12,7 +12,7 @@ const START = new Date('September 11, 2018 0:00:00');
 const END = new Date('November 19, 2018 23:59:00');
 
 fs.readFile('tryout_questions.csv', (err, data) => {
-  models.Team.findOne({ name: "MBHS"}).then(team => {
+  models.Team.findOne({ name: "MBHS" }).then(team => {
     const entries = parse(data);
     const tryout = models.Tryout({ owner: team, title: NAME, start: START, end: END, questions: []});
 

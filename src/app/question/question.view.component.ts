@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -11,16 +11,22 @@ import { Config } from '../config.service';
   templateUrl: './question.view.component.html'
 })
 export class QuestionViewComponent implements OnInit {
+  @Input()
+  questionId = null;
+  @Input()
+  fullEditor = true;
+  @Input()
+  editing = false;
+
   questionForm: FormGroup;
-  editing: Boolean = false;
-  new_question: Boolean = false;
+  newQuestion: Boolean = false;
 
   constructor(private fb: FormBuilder, private router: Router, private route: ActivatedRoute, private http: HttpClient,
               public config: Config) {
     const controls = {
       text: ['', Validators.required],
       subject: ['', Validators.required],
-      type: [''],
+      kind: [''],
       choiceAnswer: [''],
       shortAnswer: ['']
     };
@@ -33,19 +39,23 @@ export class QuestionViewComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Promises can be difficult to work with!
     this.route.params.subscribe(params => {
-      const id = params['id'];
+      if (this.fullEditor) this.questionId = params['id'];
 
-      if (id === 'new') {
+      if (this.questionId === 'new') {
         this.editing = true;
-        this.new_question = true;
+        this.newQuestion = true;
       } else {
-        this.http.get('/api/question/' + id).subscribe(res => {
+        this.http.get(`/api/questions/${this.questionId}`).subscribe(res => {
           this.questionForm.controls.text.setValue(res['text']);
           this.questionForm.controls.subject.setValue(res['subject']);
-          this.questionForm.controls.type.setValue(res['type']);
-          if (this.questionForm.controls.type.value === 'MultipleChoice') {
+          this.questionForm.controls.kind.setValue(res['kind']);
+          if (res['kind'] === 'MultipleChoiceQuestion') {
             this.questionForm.controls.choiceAnswer.setValue(res['answer']);
+            for (const choice of res['choices']) {
+              this.questionForm.controls['choice' + choice.choice].setValue(choice.text);
+            }
           } else {
             this.questionForm.controls.shortAnswer.setValue(res['answer']);
           }
@@ -58,10 +68,10 @@ export class QuestionViewComponent implements OnInit {
     const data = {
       text: this.questionForm.controls['text'].value,
       subject: this.questionForm.controls['subject'].value,
-      type: this.questionForm.controls['type'].value
+      kind: this.questionForm.controls['kind'].value
     };
 
-    if (this.questionForm.controls['type'].value === 'MultipleChoice') {
+    if (this.questionForm.controls['kind'].value === 'MultipleChoice') {
       data['choices'] = [];
       for (const choice of this.config.CHOICES) {
         data['choices'].push({ choice: choice, text: this.questionForm.controls['choice' + choice].value });
@@ -71,14 +81,12 @@ export class QuestionViewComponent implements OnInit {
       data['answer'] = this.questionForm.controls['shortAnswer'].value;
     }
 
-    if (this.new_question) {
-      this.http.post('/api/question/new', data).subscribe(res => {
-        this.router.navigateByUrl('/question/' + res['id']);
+    if (this.newQuestion) {
+      this.http.post('/api/questions/new', data).subscribe(res => {
+        if (this.fullEditor) this.router.navigateByUrl(`/question/${res['id']}`);
       });
     } else {
-      this.route.params.subscribe(params => {
-        this.http.post('/api/question/' + params['id'] + '/edit', data).subscribe(() => this.editing = false);
-      });
+      this.http.post(`/api/questions/${this.questionId}`, data).subscribe(() => this.editing = false);
     }
   }
 }

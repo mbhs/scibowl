@@ -1,6 +1,6 @@
 <div class="clearfix">
   <h1 class="float-sm-left">Question</h1>
-  <button type="button" class="btn btn-success float-sm-right" *ngIf="!editing" (click)="editing = true;">Edit <i class="fas fa-pencil"></i></button>
+  <button type="button" class="btn btn-success float-sm-right" *ngIf="!editing" (click)="editing = true;">Edit <i class="fas fa-edit"></i></button>
 </div>
 <br/>
 
@@ -20,9 +20,9 @@
   <div class="form-group row">
     <label class="col-sm-2"><strong>Subject</strong></label>
     <div class="col-sm-10" *ngIf="editing">
-      <ng-container *ngFor="let subject of SUBJECTS;">
+      <ng-container *ngFor="let subject of config.SUBJECTS;">
         <input type="radio" class="subject-button" [id]="'question-subject-' + subject" formControlName="subject" [value]="subject">
-        <label [ngClass]="['subject-' + subject]" [for]="'question-subject-' + subject"></label>
+        <label class="mr-2" [ngClass]="['subject-' + subject]" [for]="'question-subject-' + subject"></label>
       </ng-container>
     </div>
     <div class="col-sm-10" *ngIf="!editing">
@@ -34,25 +34,25 @@
     <label class="col-sm-2"><strong>Type</strong></label>
     <div class="col-sm-10" *ngIf="editing">
       <label class="custom-control custom-radio">
-        <input type="radio" class="custom-control-input" formControlName="type" value="MultipleChoice" id="multipleChoiceRadio">
+        <input type="radio" class="custom-control-input" formControlName="kind" value="MultipleChoiceQuestion" id="multipleChoiceRadio">
         <label class="custom-control-label" for="multipleChoiceRadio">Multiple Choice</label>
       </label>
       <label class="custom-control custom-radio">
-        <input type="radio" class="custom-control-input" formControlName="type" value="ShortAnswer" id="shortAnswerRadio">
+        <input type="radio" class="custom-control-input" formControlName="kind" value="ShortAnswerQuestion" id="shortAnswerRadio">
         <label class="custom-control-label" for="shortAnswerRadio">Short Answer</label>
       </label>
     </div>
     <div class="col-sm-10" *ngIf="!editing">
-      {{ TYPE_DISPLAY[questionForm.controls['type'].value]}}
+      {{ config.TYPE_DISPLAY[questionForm.controls['kind'].value] }}
     </div>
   </div>
 
-  <ng-container *ngIf="questionForm.controls['type'].value === 'MultipleChoice'">
-    <div class="form-group row" *ngFor="let choice of CHOICES;">
+  <ng-container *ngIf="questionForm.controls['kind'].value === 'MultipleChoiceQuestion'">
+    <div class="form-group row" *ngFor="let choice of config.CHOICES;">
       <label class="col-sm-2" [for]="'problem-answer-choice-' + choice"><strong>Choice {{ choice }}</strong></label>
       <div class="col-sm-10" *ngIf="editing">
         <input class="form-control" [id]="'problem-answer-choice-' + choice"
-               [formControlName]="'choice' + choice" [placeholder]="DEFAULT_CHOICES[choice]">
+               [formControlName]="'choice' + choice">
       </div>
       <div class="col-sm-10" *ngIf="!editing">
         {{ questionForm.controls['choice' + choice].value }}
@@ -62,18 +62,19 @@
     <div class="form-group row">
       <label class="col-sm-2"><strong>Answer</strong></label>
       <div class="col-sm-10" *ngIf="editing">
-        <label class="custom-control custom-radio" *ngFor="let choice of CHOICES;">
+        <label class="custom-control custom-radio" *ngFor="let choice of config.CHOICES;">
           <input type="radio" class="custom-control-input" formControlName="choiceAnswer" [value]="choice" id="choice{{ choice }}Radio">
           <label class="custom-control-label" for="choice{{ choice }}Radio">{{ choice }}</label>
         </label>
       </div>
       <div class="col-sm-10" *ngIf="!editing">
-        {{ questionForm.controls['choiceAnswer'].value }}) {{ questionForm.controls['choice' + questionForm.controls['choiceAnswer'].value].value }}
+        {{ questionForm.controls['choiceAnswer'].value }})
+        {{ questionForm.controls['choice' + questionForm.controls['choiceAnswer'].value].value }}
       </div>
     </div>
   </ng-container>
 
-  <div class="form-group row" *ngIf="questionForm.controls['type'].value === 'ShortAnswer'">
+  <div class="form-group row" *ngIf="questionForm.controls['kind'].value === 'ShortAnswerQuestion'">
     <label class="col-sm-2" for="problem-answer"><strong>Answer</strong></label>
     <div class="col-sm-10" *ngIf="editing">
       <input class="form-control" id="problem-answer" formControlName="shortAnswer" placeholder="Nucleus">

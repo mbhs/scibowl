@@ -1,0 +1,21 @@
+<ng-container *ngIf="rounds">
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Title</th>
+      <th>Author</th>
+      <th># Questions</th>
+      <th>Tryout?</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr *ngFor="let round of rounds;">
+      <td><a routerLink="/round/{{ round._id }}">{{ round.title }}</a></td>
+      <td>{{ round.author.name.first }} {{ round.author.name.last }}</td>
+      <td>{{ round.numQuestions }}</td>
+      <td>{{ round.kind === 'TryoutRound' }}</td>
+    </tr>
+    </tbody>
+  </table>
+</ng-container>

@@ -1,0 +1,23 @@
+<h3>Round Editor</h3>
+
+<ng-container *ngIf="questions">
+  <table class="table">
+    <thead>
+    <tr>
+      <th>#</th>
+      <th>Subject</th>
+      <th>Question</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr *ngFor="let question of questions; let i = index">
+      <td>{{ i }}</td>
+      <td>{{ question.question.subject }}</td>
+      <td>{{ question.question.text | truncate: 50 }}</td>
+      <td><a class="btn btn-primary" routerLink="/question/{{ question.question._id }}"><i class="fas fa-edit"></i></a></td>
+    </tr>
+    </tbody>
+  </table>
+</ng-container>

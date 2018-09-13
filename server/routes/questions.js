@@ -3,38 +3,36 @@ const console = require('console');
 const router = express.Router();
 
 const models = require('../models');
+const middleware = require('./middleware');
 const game = require('../game');
 
 
-router.post('/new', (req, res) => {
-
-  if (!req.user || req.user.role < models.roles.staff) {
-    res.status(401).send({});
-    return;
-  }
+router.post('/new', middleware.assertStudent, (req, res) => {
 
   // Create a question with arbitrary type
   let question;
-  if (req.body['type'] === game.MC) {
+  if (req.body['kind'] === "MultipleChoiceQuestion") {
     question = new models.MultipleChoiceQuestion();
-  } else if (req.body['type'] === game.SA) {
+  } else if (req.body['kind'] === "ShortAnswerQuestion") {
     question = new models.ShortAnswerQuestion();
-  } else res.status(500).send("question type must be one of " + [game.MC, game.SA].join(", "));
+  } else {
+    res.status(400).send({ reason: "invalid question type" });
+    return;
+  }
+
+  let questionData = req.body;
+  questionData["owner"] = req.team._id;
+  questionData["author"] = req.user._id;
 
   // Update and save the question
-  question.update(req.body);
+  question.update(questionData);
   question.save(err => { if (err) throw err });
   res.send({ id: question._id });
 
 });
 
 
-router.post('/:id/edit', (req, res) => {
-
-  if (!req.user || req.user.role < models.roles.staff) {
-    res.status(401).send({});
-    return;
-  }
+router.post('/:id', middleware.assertAdmin, (req, res) => {
 
   // Find and update the question
   models.Question.findById(req.params.id, (err, question) => {
@@ -46,7 +44,7 @@ router.post('/:id/edit', (req, res) => {
 });
 
 
-router.get('/:id', (req, res) => {
+router.get('/:id', middleware.assertAdmin, (req, res) => {
 
   // Find and send the question
   models.Question.findById(req.params.id, (err, question) => {
