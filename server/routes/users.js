@@ -74,7 +74,7 @@ router.post('/login', (req, res) => {
     validate.username(req.body['username']);
     validate.password(req.body['password']);
   } catch (err) {
-    if (err instanceof validate.ValidationError) {
+    if (err instanceof validate.Error) {
       res.status(400).send({ reason: err.reason });
       return;
     } else throw err;
