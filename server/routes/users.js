@@ -44,7 +44,6 @@ router.post('/register', (req, res) => {
     /* Create user. */
     let user = new models.User({
       username: username,
-      password: password,
       name: { first: firstName, last: lastName },
       email: email,
       year: year

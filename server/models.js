@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-mongoose.set('debug', true);
+// mongoose.set('debug', true);
 const passportLocalMongoose = require("passport-local-mongoose");
 
 const Schema = mongoose.Schema;
@@ -18,7 +18,6 @@ const roles = { public: 0, student: 1, member: 2, captain: 3, deity: 4 };
  */
 const userSchema = new Schema({
   username  : { type: String, required: true },
-  password  : { type: String, required: true },
   name      : {
     first   : { type: String, required: true },
     last    : { type: String, required: true },
