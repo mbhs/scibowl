@@ -161,12 +161,12 @@ tryoutResultSchema.methods.score = function(correct, incorrect) {
   const scores = { total : { score: 0, answered: 0 } };
   // Add up the score for each subject
   for (let subject of game.SUBJECTS) {
-    const subjectResults = this.updates.filter(update => update.question.subject === subject && update.status !== 'skipped');
-    let subjectScore = subjectResults.filter(update => update.status === 'correct').length * correct +
-      subjectResults.filter(question => question.status === 'incorrect').length * incorrect;
-    scores[subject] = { score: subjectScore, answered: subjectResults.length };
+    const subjectUpdates = this.updates.filter(update => update.question.subject === subject && update.status !== 'released');
+    let subjectScore = subjectUpdates.filter(update => update.status === 'correct').length * correct +
+      subjectUpdates.filter(question => question.status === 'incorrect').length * incorrect;
+    scores[subject] = { score: subjectScore, answered: subjectUpdates.length };
     scores.total.score += subjectScore;
-    scores.total.answered += subjectResults.length;
+    scores.total.answered += subjectUpdates.length;
   }
   return scores;
 };
