@@ -14,8 +14,7 @@ router.get('/tryouts', middleware.assertAdmin, (req, res) =>
       let summaries = [];
       for (let result of results) {
         summaries.push({
-          name: result.user.name,
-          year: result.user.year,
+          user: utils.mask(result.user, ["name", "email", "year"]),
           started: result.updates[0].time,
           finished: result.updates.filter(update => update.status !== "released").length === tryout.questions.length,
           scores: result.score(tryout.correct, tryout.incorrect)
